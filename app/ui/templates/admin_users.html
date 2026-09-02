@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">User Management</h2>
+    <p class="text-gray-500 mt-1">Manage system access across all roles.</p>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr class="bg-gray-100 text-gray-600 text-sm">
+                <th class="p-3">Email</th>
+                <th class="p-3">Role</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Last Login</th>
+            </tr>
+        </thead>
+        <tbody id="user-list">
+            <tr><td colspan="4" class="p-3 text-center text-gray-500">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+async function loadUsers() {
+    const token = localStorage.getItem('access_token');
+    const headers = token ? {'Authorization': `Bearer ${token}`} : {};
+    
+    try {
+        const res = await fetch('/api/admin/users', {headers});
+        const data = await res.json();
+        
+        const tbody = document.getElementById('user-list');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-gray-500">No users found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.map(user => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-medium">${user.email}</td>
+                <td class="p-3">
+                    <span class="px-2 py-1 bg-gray-100 rounded text-xs uppercase font-semibold">${user.role}</span>
+                </td>
+                <td class="p-3">
+                    <span class="px-2 py-1 ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-xs">${user.status || 'active'}</span>
+                </td>
+                <td class="p-3 text-sm text-gray-500">${user.last_login || 'Never'}</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        document.getElementById('user-list').innerHTML = `<tr><td colspan="4" class="p-3 text-center text-red-500">Error: ${err.message}</td></tr>`;
+    }
+}
+loadUsers();
+</script>
+{% endblock %}

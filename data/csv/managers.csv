@@ -1,0 +1,6 @@
+id,full_name,email,phone,area_id,status,hire_date
+c1e2d154-2207-57e6-a95e-d4b155615418,Luz Bautista,manager1@gcash.com,+63 917 859 5506,28ac47f7-f1ce-5fc3-966a-5dcdd795fc26,active,2023-12-14
+3c7edfa7-3831-5c37-a9bf-e13291a0e6bf,Eduardo Torres,manager2@gcash.com,+63 921 854 2679,a87e363d-04c2-5fe0-abdc-8924fa7bf1a1,active,2025-08-05
+9a96993f-b2a2-5c29-985b-89ed69f91003,Gloria Villanueva,manager3@gcash.com,+63 919 704 7912,dd92fc02-23e6-54d1-8ade-4dc72b56055b,active,2024-02-07
+f6be5ef0-2de1-51a8-8924-7e4d8999e9e5,Jose Santos,manager4@gcash.com,+63 919 323 4811,be3107b0-7566-55ce-95b2-c6139ff216c6,active,2024-07-28
+69648964-af15-5708-b665-8174ca69bac4,Ana Dela Cruz,manager5@gcash.com,+63 917 674 4257,df62ff79-4b9c-5a75-8bd4-eb2c86e9c598,active,2025-04-01

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800" id="dashboard-title">Dashboard</h2>
+    <p class="text-gray-500 mt-1" id="subtitle">Loading...</p>
+</div>
+
+<!-- Dynamic container for role-based content -->
+<div id="dashboard-content">
+    <div class="animate-pulse">
+        <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="h-24 bg-gray-200 rounded"></div>
+            <div class="h-24 bg-gray-200 rounded"></div>
+            <div class="h-24 bg-gray-200 rounded"></div>
+            <div class="h-24 bg-gray-200 rounded"></div>
+        </div>
+        <div class="h-64 bg-gray-200 rounded w-full"></div>
+    </div>
+</div>
+
+<script>
+async function loadDashboard() {
+    const token = localStorage.getItem('access_token');
+    const role = localStorage.getItem('user_role') || 'dsp';
+    const headers = token ? {'Authorization': `Bearer ${token}`} : {};
+    const content = document.getElementById('dashboard-content');
+    const title = document.getElementById('dashboard-title');
+    const subtitle = document.getElementById('subtitle');
+
+    try {
+        if (role === 'admin') {
+            title.textContent = 'System Overview';
+            const res = await fetch('/api/admin/dashboard', {headers});
+            const data = await res.json();
+            subtitle.textContent = `System-wide metrics across ${data.total_areas} areas`;
+            
+            let areasHtml = data.areas.map(a => `
+                <tr class="border-b">
+                    <td class="p-3">${a.name}</td>
+                    <td class="p-3">${a.outlet_count}</td>
+                    <td class="p-3">${a.avg_score.toFixed(1)}</td>
+                </tr>
+            `).join('');
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Outlets</p>
+                        <p class="text-2xl font-bold">${data.total_outlets}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total DSPs</p>
+                        <p class="text-2xl font-bold">${data.total_dsps}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Transactions</p>
+                        <p class="text-2xl font-bold">${data.total_transactions}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Visits</p>
+                        <p class="text-2xl font-bold">${data.total_visits}</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 bg-gray-50 border-b">
+                        <h3 class="font-bold text-gray-700">All Areas Breakdown</h3>
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-sm">
+                                <th class="p-3">Area Name</th>
+                                <th class="p-3">Outlets</th>
+                                <th class="p-3">Avg Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>${areasHtml || '<tr><td colspan="3" class="p-3 text-center text-gray-500">No areas found</td></tr>'}</tbody>
+                    </table>
+                </div>
+            `;
+        } else if (role === 'manager') {
+            title.textContent = 'Area Overview';
+            const res = await fetch('/api/manager/dashboard', {headers});
+            const data = await res.json();
+            subtitle.textContent = `${data.area_name} - KPI Summary`;
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Outlets</p>
+                        <p class="text-2xl font-bold">${data.total_outlets}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Active / At Risk</p>
+                        <p class="text-2xl font-bold text-gray-800"><span class="text-green-600">${data.active_count}</span> / <span class="text-red-600">${data.at_risk_count}</span></p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Avg Priority Score</p>
+                        <p class="text-2xl font-bold text-blue-600">${data.avg_score ? data.avg_score.toFixed(1) : '-'}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Transactions</p>
+                        <p class="text-2xl font-bold">${data.total_transactions}</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-white rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-700">DSP Team Overview</h3>
+                        <a href="/dsp-performance" class="text-sm text-blue-600 hover:underline">View Detailed Performance &rarr;</a>
+                    </div>
+                    <p class="text-gray-600 text-sm">Managing ${data.dsp_count} DSPs. Total visits this month: ${data.total_visits_this_month}</p>
+                </div>
+            `;
+        } else {
+            // DSP view
+            title.textContent = 'Daily Priority Outlets';
+            const res = await fetch('/api/outlets', {headers});
+            const data = await res.json();
+            
+            if (!data.outlets || data.outlets.length === 0) {
+                content.innerHTML = '<p class="text-gray-500">No outlets found.</p>';
+                subtitle.textContent = 'No data available';
+                return;
+            }
+
+            const high = data.outlets.filter(o => o.priority_score > 80).length;
+            const med = data.outlets.filter(o => o.priority_score >= 50 && o.priority_score <= 80).length;
+            const low = data.outlets.filter(o => o.priority_score < 50).length;
+            subtitle.textContent = `${data.total} outlets ranked by priority`;
+
+            const cards = data.outlets.map(o => {
+                const scoreColor = o.priority_score > 80 ? 'bg-red-500' :
+                                  o.priority_score > 50 ? 'bg-yellow-500' : 'bg-green-500';
+                const borderColor = o.priority_score > 80 ? 'border-red-400' :
+                                   o.priority_score > 50 ? 'border-yellow-400' : 'border-green-400';
+                const factors = Array.isArray(o.contributing_factors)
+                    ? o.contributing_factors.map(f => typeof f === 'string' ? f.replace(/_/g, ' ') : f).join(', ')
+                    : '';
+
+                return `
+                    <a href="/outlet/${o.outlet_id}" class="bg-white rounded-lg shadow hover:shadow-lg transition border-l-4 ${borderColor} p-4 block">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-gray-800">${o.outlet_name}</h3>
+                                <p class="text-sm text-gray-500">${o.merchant_name || 'N/A'}</p>
+                            </div>
+                            <span class="${scoreColor} text-white text-sm font-bold px-2 py-1 rounded">
+                                ${o.priority_score}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <span class="inline-block bg-gray-100 rounded px-2 py-0.5 mr-1">${o.outlet_type || ''}</span>
+                            <span class="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5">${o.status || ''}</span>
+                        </div>
+                        <p class="text-xs text-gray-400">${o.address || ''}, ${o.city || ''}</p>
+                        ${factors ? `<p class="text-xs text-orange-600 mt-1">⚠ ${factors}</p>` : ''}
+                    </a>
+                `;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Total Outlets</p>
+                        <p class="text-2xl font-bold">${data.total}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">High Priority (>80)</p>
+                        <p class="text-2xl font-bold text-red-600">${high}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Medium (50-80)</p>
+                        <p class="text-2xl font-bold text-yellow-600">${med}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <p class="text-sm text-gray-500">Low (<50)</p>
+                        <p class="text-2xl font-bold text-green-600">${low}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${cards}
+                </div>
+            `;
+        }
+    } catch (err) {
+        content.innerHTML = `<p class="text-red-500">Error loading dashboard: ${err.message}</p>`;
+    }
+}
+
+loadDashboard();
+</script>
+{% endblock %}

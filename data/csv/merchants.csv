@@ -1,0 +1,201 @@
+id,business_name,owner_name,contact_number,business_type,registration_date,status
+26bf2e04-2900-5c51-a63e-fbcc95d4a9c6,Corazon Padala Center,Corazon Torres,+63 920 683 5033,remittance_center,2026-04-30,inactive
+a908fe70-98bb-5f1e-8e6a-13439d886521,Jose Pawnshop,Jose Dela Cruz,+63 946 773 9565,pawnshop,2025-06-18,active
+676de22a-98af-5829-bf98-7fa524711054,Mang Antonio's Tindahan,Antonio Ramos,+63 929 505 3144,sari_sari_store,2025-09-10,active
+0dfdd4f4-02e5-5a55-8a9b-891b9a5b9ba3,Ramon Express,Ramon Cruz,+63 950 736 2638,convenience_store,2025-01-21,active
+ab2655b1-724a-5e5b-8fc3-9d2222c45d3e,Antonio Drug Store,Antonio Hernandez,+63 921 457 2127,pharmacy,2023-12-21,active
+441546cc-0f25-5a0b-9229-6143b9ae4678,Tindahan ni Fernando,Fernando Garcia,+63 961 820 5956,sari_sari_store,2024-04-18,inactive
+69982d29-2f92-54dd-8b42-4b6821813122,Ana Padala Center,Ana Santos,+63 920 999 3200,remittance_center,2026-07-03,active
+35625f7c-5f63-5460-8f53-0327ef02828f,Fe's Mini Mart,Fe Bautista,+63 921 378 5616,sari_sari_store,2024-06-29,inactive
+e64f1b78-7229-5fe9-af27-3afde2f65983,Mang Teresa's Tindahan,Teresa Ramos,+63 977 973 5325,sari_sari_store,2026-08-15,suspended
+daebb761-d794-577f-9fe5-825a32f9b87b,Ricardo Pharmacy,Ricardo Reyes,+63 977 533 5533,pharmacy,2024-06-02,active
+6b0694da-04d6-558f-b0eb-84888914018d,Ramon's Sari-Sari,Ramon Ocampo,+63 926 859 8239,sari_sari_store,2025-01-25,suspended
+c8bde638-0339-5c07-874c-a95b2af691af,Ernesto Remittance,Ernesto Villanueva,+63 920 177 3442,remittance_center,2026-05-31,suspended
+0823e6b2-0533-5be8-a4bb-af369ba421e5,Nelia's Mini Mart,Nelia Aquino,+63 961 251 8041,sari_sari_store,2024-11-22,active
+1ebd2a93-70cd-5e1d-bbb3-34ddc32f27e1,Aling Fernando's Store,Fernando Aquino,+63 936 315 5088,sari_sari_store,2025-04-16,active
+712ffd3d-3fff-51cc-a23f-448d39b6b496,Tindahan ni Rosario,Rosario Villanueva,+63 975 867 3532,sari_sari_store,2024-11-13,active
+c8dc6a3d-79eb-5b47-8a0e-9f7f53a90094,Tindahan ni Lorna,Lorna Garcia,+63 917 283 6442,sari_sari_store,2024-04-16,active
+ff19d265-6d5c-5533-b00d-20442de9f58d,Corazon Padala Center,Corazon Torres,+63 926 906 2771,remittance_center,2024-04-23,active
+619fe364-9174-5b42-afbb-1da57fee2265,Mang Corazon's Tindahan,Corazon Gonzales,+63 927 936 8541,sari_sari_store,2023-11-28,active
+8efebfca-5f24-542a-84ac-0eeb74fbcf60,Mang Nelia's Tindahan,Nelia Torres,+63 917 775 4164,sari_sari_store,2024-02-06,active
+bf7b72a3-0007-56d3-aa57-fa8a5a15f1a0,Ricardo's Sari-Sari,Ricardo Cruz,+63 936 756 9346,sari_sari_store,2025-04-22,active
+d1897cc1-395a-5ed0-bf25-a6555e7e6a98,Nelia Padala Center,Nelia Villanueva,+63 917 218 5279,remittance_center,2025-07-07,active
+94e933d5-3caf-5ecf-9dd4-6ffea84bb0b4,Ricardo Pawnshop,Ricardo Reyes,+63 975 544 6663,pawnshop,2024-07-03,active
+e205c222-e396-553f-b26a-47984778b60c,Carmen Express,Carmen Hernandez,+63 945 690 4114,convenience_store,2025-07-07,active
+949dca79-71bc-590d-be25-60894849b55b,Aling Teresa's Store,Teresa Flores,+63 956 925 9821,sari_sari_store,2025-04-04,active
+66b2e8cb-dc6e-50e7-9b65-5856e207e61d,Ernesto's Sari-Sari,Ernesto Cruz,+63 975 421 3041,sari_sari_store,2025-09-05,active
+2caec3f9-91ae-57aa-9eb7-c390813e17c6,Fernando Drug Store,Fernando Flores,+63 945 813 5844,pharmacy,2024-12-09,suspended
+f468fc78-5dbd-5c1a-9eb6-da774f7eb9d8,Tindahan ni Antonio,Antonio Flores,+63 926 730 5930,sari_sari_store,2026-07-17,active
+f21eb0bf-c2ee-55a1-bfb4-557f1367a9b4,Nelia Drug Store,Nelia Santos,+63 930 315 8043,pharmacy,2023-09-15,inactive
+39c7c185-225a-5941-9070-f37736a679b2,Luz Lending,Luz Ramos,+63 950 552 4501,pawnshop,2026-08-22,suspended
+be08dfe3-f201-573d-99e9-1eb6a8daa93e,Lorna Mini Stop,Lorna Garcia,+63 919 390 9445,convenience_store,2024-02-15,inactive
+742be74a-689a-5579-a5b8-ff2c0f42881a,Pedro's Sari-Sari,Pedro Torres,+63 928 925 4262,sari_sari_store,2025-08-21,active
+63488871-4c35-59dc-8d07-812463b1c1dd,Tindahan ni Jose,Jose Torres,+63 975 970 2193,sari_sari_store,2023-11-29,active
+3806a900-4e31-58b5-b75d-e49f91428dc7,Fe Express,Fe Castro,+63 945 606 7547,convenience_store,2025-01-20,active
+297f566b-23d0-5127-aeee-470a1fc16520,Aling Luz's Store,Luz Santos,+63 946 324 3881,sari_sari_store,2023-09-08,suspended
+ce84180c-18f6-552e-a086-edef79130cea,Jose Express,Jose Villanueva,+63 920 567 3184,convenience_store,2025-03-09,active
+929f7992-9ad5-5bba-a86d-cdd127a38be6,Ana Padala Center,Ana Villanueva,+63 950 727 9270,remittance_center,2025-01-20,active
+cc54275e-ed1d-57ae-87ac-bd3f33a0d37a,Botica ni Rolando,Rolando Garcia,+63 955 560 5246,pharmacy,2025-08-21,active
+12a3494f-10cd-5510-9bd2-7f6d059cbbd2,Ricardo Lending,Ricardo Hernandez,+63 977 344 5499,pawnshop,2026-04-10,active
+82ead168-b511-5518-ae41-2290ab90c234,Mang Teresa's Tindahan,Teresa Andrade,+63 929 443 6238,sari_sari_store,2023-09-20,suspended
+00441661-47f2-50c6-8456-3e104c713caf,Mang Miguel's Tindahan,Miguel Ocampo,+63 945 810 3503,sari_sari_store,2025-03-22,active
+da71cb0e-ef38-5d8f-b284-f7e94f1c262f,Ernesto's Sari-Sari,Ernesto Flores,+63 961 577 7812,sari_sari_store,2025-07-15,active
+ea89d7f7-9635-539a-bd2a-a684d0bc3dea,Tindahan ni Nelia,Nelia Flores,+63 966 812 1320,sari_sari_store,2026-04-13,inactive
+5ed04869-63d3-5157-add4-2b50eed27681,Maria's Sari-Sari,Maria Santos,+63 930 871 7389,sari_sari_store,2026-07-06,active
+1970cb46-f424-5f19-bbe3-54410bbf3c70,Botica ni Josefina,Josefina Villanueva,+63 928 599 4595,pharmacy,2025-11-21,active
+3926930c-52e1-5eb9-b18f-425016f8b07c,Maria Convenience,Maria Santos,+63 935 784 7624,convenience_store,2025-05-02,active
+635e7a6f-f49d-503e-a7ea-f0913bdb6d00,Erlinda Mini Stop,Erlinda Ocampo,+63 961 127 7455,convenience_store,2025-12-18,inactive
+99e3cd03-3e1e-5997-98a5-58fde86e9924,Gloria Pawnshop,Gloria Santos,+63 977 538 3223,pawnshop,2026-02-04,active
+5f1a15b5-0c23-588a-9746-0d1f3f7af148,Tindahan ni Jose,Jose Tomas,+63 935 316 8449,sari_sari_store,2024-01-23,active
+fe823172-4573-5784-82c0-62d7513e5bf4,Rosario's Sari-Sari,Rosario Rivera,+63 946 358 2341,sari_sari_store,2025-10-31,active
+e1882e45-7e45-5c3e-9ef4-3036d746966f,Aling Josefina's Store,Josefina Villanueva,+63 936 329 2124,sari_sari_store,2025-04-20,active
+080b4031-0ffe-54f0-bf45-d4acaa5acc3c,Juan Internet Cafe,Juan Torres,+63 917 736 3496,internet_cafe,2024-07-31,active
+ff7d0969-136e-5a52-9fc0-1487349a8146,Maria's Mini Mart,Maria Bautista,+63 927 576 5198,sari_sari_store,2023-09-20,active
+72f189ec-98d1-510f-aa8a-2efddbebf1c6,Aling Carmen's Store,Carmen Dela Cruz,+63 926 418 2771,sari_sari_store,2026-03-23,inactive
+13fe1072-6be7-54e3-950f-5c123804e384,Erlinda's Mini Mart,Erlinda Andrade,+63 945 506 4249,sari_sari_store,2023-10-07,active
+460033d5-6899-5bd6-bd9e-b87f2ecac724,Teresa Pawnshop,Teresa Torres,+63 930 970 2983,pawnshop,2026-04-11,inactive
+d960de75-9d69-55d3-a0e3-2dafa9622e4c,Tindahan ni Reynaldo,Reynaldo Villanueva,+63 936 170 9289,sari_sari_store,2026-08-14,active
+908a169d-e589-508f-9573-1b3375cd994a,Tindahan ni Corazon,Corazon Flores,+63 920 543 6934,sari_sari_store,2024-09-23,active
+17390989-c254-5961-9337-10043bc3db40,Miguel Remittance,Miguel Flores,+63 956 766 5425,remittance_center,2025-09-15,inactive
+71c54a62-48c2-55e0-bd0e-dc81917f89f9,Rosario Drug Store,Rosario Gonzales,+63 946 945 5397,pharmacy,2024-12-17,active
+2c71e9f7-f90a-51a7-82b1-f5dd36ad2486,Nelia's Sari-Sari,Nelia Cruz,+63 950 349 8613,sari_sari_store,2024-02-22,inactive
+ed7f0c6b-13f6-53b6-9542-cc129994c258,Gloria Lending,Gloria Rivera,+63 917 606 6325,pawnshop,2024-01-16,active
+53844139-dd79-5dfc-a18b-5983d024ccfb,Antonio Drug Store,Antonio Aquino,+63 935 386 5526,pharmacy,2025-04-20,suspended
+2ab7563d-adab-52ff-9374-2dd4ea04477b,Aling Ana's Store,Ana Mendoza,+63 928 837 7658,sari_sari_store,2023-11-20,active
+1dc93905-d4dd-5aef-916a-019f089a1c86,Botica ni Rosario,Rosario Torres,+63 955 761 9041,pharmacy,2025-03-08,active
+e7495aed-f722-5c5c-b7c2-e0b65f7f745b,Mang Pedro's Tindahan,Pedro Andrade,+63 945 808 4986,sari_sari_store,2026-04-18,active
+0ad2695a-8596-5871-a84f-3e791a2475bb,Elena Padala Center,Elena Aquino,+63 961 643 6632,remittance_center,2024-05-24,active
+283d0fdc-7bb8-57be-99e0-47f701e233f4,Rosa Pisong Net,Rosa Ramos,+63 950 377 6023,internet_cafe,2025-05-21,active
+9e84429a-ac05-5406-9bd6-4212810b262c,Carlos's Sari-Sari,Carlos Mendoza,+63 920 860 9779,sari_sari_store,2024-04-09,active
+b008097f-5618-53fa-a7b8-041e29e53262,Antonio's Sari-Sari,Antonio Gonzales,+63 966 878 9595,sari_sari_store,2025-05-09,inactive
+14eec67e-c712-5683-84a8-20ec20baadd4,Carlos's Sari-Sari,Carlos Mendoza,+63 928 469 3939,sari_sari_store,2025-02-24,active
+64d86f76-0803-5bb7-a77f-585ab9e9a80c,Mang Teresa's Tindahan,Teresa Villanueva,+63 929 146 1893,sari_sari_store,2024-04-20,suspended
+221ff97a-4904-570d-8886-d68cde5cfdb7,Tindahan ni Teresa,Teresa Ocampo,+63 920 993 1200,sari_sari_store,2024-10-06,inactive
+06fed607-1071-535a-9990-1ad594c36cbf,Tindahan ni Maria,Maria Gonzales,+63 935 288 1841,sari_sari_store,2026-06-06,active
+cf580dae-6847-5032-bfe0-1825c085c897,Carlos Convenience,Carlos Cruz,+63 955 175 1878,convenience_store,2026-01-23,active
+645fbc99-20e6-5d81-96eb-c09a23c03b68,Lorna's Sari-Sari,Lorna Castro,+63 919 354 2940,sari_sari_store,2024-10-12,suspended
+2decaccb-2870-570f-a027-0d9f42947502,Ernesto's Computer Shop,Ernesto Dela Cruz,+63 975 331 9561,internet_cafe,2024-11-14,active
+73522e82-2c7b-5897-9dfa-f2b4a468c282,Erlinda Convenience,Erlinda Lopez,+63 966 539 6003,convenience_store,2024-02-05,inactive
+965f3821-d76c-5972-b7a5-21f7c69a5b47,Sangla ni Jose,Jose Dela Cruz,+63 920 881 4404,pawnshop,2025-07-22,active
+d745997c-ef04-517d-992f-d46228c9fb4c,Mang Gloria's Tindahan,Gloria Cruz,+63 928 277 2229,sari_sari_store,2025-10-23,active
+c0bbf57e-fb7c-5d96-8c3a-4ed0176ac616,Ernesto's Mini Mart,Ernesto Lopez,+63 955 398 1534,sari_sari_store,2025-04-16,active
+57950df6-c45d-5b36-b292-30a207e2b4a9,Tindahan ni Teresa,Teresa Andrade,+63 919 803 4824,sari_sari_store,2024-12-08,active
+4dca96f6-04e4-585a-bb48-9989c3af8745,Elena Lending,Elena Mendoza,+63 920 657 4683,pawnshop,2025-05-12,active
+98a6990f-77b3-52e7-a1c2-6d4167f7d841,Aling Nelia's Store,Nelia Ocampo,+63 918 269 6039,sari_sari_store,2025-12-18,inactive
+bf4c591c-9e0b-528f-a21d-52b1eb692ffd,Nelia Pisong Net,Nelia Castro,+63 950 227 8679,internet_cafe,2026-05-07,active
+c7318f32-055f-5d17-ab4e-20c631cb4c8a,Danilo Padala Center,Danilo Tomas,+63 950 182 1653,remittance_center,2024-05-30,active
+49da2e15-ed3a-528e-86d4-e9af5c7b1041,Ramon Pisong Net,Ramon Dela Cruz,+63 917 193 4750,internet_cafe,2023-12-16,inactive
+ee07c280-7f2c-5566-bee5-5b7def3b5e4d,Sangla ni Juan,Juan Tomas,+63 918 881 3870,pawnshop,2025-02-08,active
+467d3400-fb3e-52f3-80e6-83af006cc6a9,Luz Drug Store,Luz Lopez,+63 926 699 8141,pharmacy,2025-05-27,active
+2648e9ed-52de-539b-b5f6-dad97288749c,Tindahan ni Maria,Maria Aquino,+63 935 428 2713,sari_sari_store,2023-10-20,active
+3d650931-ed3a-5a40-839f-5e32af0b5958,Ernesto's Sari-Sari,Ernesto Gonzales,+63 945 933 1601,sari_sari_store,2023-10-16,active
+682ae381-911d-5546-9a0b-af8a45f4d269,Ramon's Sari-Sari,Ramon Tomas,+63 920 891 7622,sari_sari_store,2025-12-21,suspended
+a8220584-6d07-583c-93d4-97cbb3aebe4e,Tindahan ni Gloria,Gloria Villanueva,+63 946 155 4073,sari_sari_store,2024-01-23,suspended
+26b8a67d-393b-5a7f-881a-4e0bb3953f86,Tindahan ni Carmen,Carmen Gonzales,+63 918 308 5375,sari_sari_store,2023-11-25,suspended
+52a8d9ee-cb08-52bc-a0c2-c3e4aa5d00e7,Tindahan ni Erlinda,Erlinda Andrade,+63 955 224 1472,sari_sari_store,2024-05-01,inactive
+07a16421-a2c8-5370-8b38-df901ea031a9,Teresa's Sari-Sari,Teresa Garcia,+63 961 114 7684,sari_sari_store,2024-08-23,active
+f6321a97-df6a-5832-91fa-e0689fe0365b,Tindahan ni Nelia,Nelia Bautista,+63 920 763 3522,sari_sari_store,2025-10-26,active
+6c58c730-44a2-548f-99f8-37c7e3939ef0,Fernando Padala Center,Fernando Hernandez,+63 946 954 8905,remittance_center,2024-08-14,active
+85509236-a071-58a8-be76-98526f104a93,Mang Rolando's Tindahan,Rolando Villanueva,+63 945 295 9327,sari_sari_store,2025-11-11,active
+70815ff6-99c9-5575-92f7-6855a865fd8f,Ricardo's Sari-Sari,Ricardo Flores,+63 956 373 1042,sari_sari_store,2024-03-30,active
+5f513119-9849-59d8-b34a-2756848e3a7c,Fernando's Computer Shop,Fernando Castro,+63 955 986 3434,internet_cafe,2024-04-03,active
+1530c981-74ca-557e-98a2-4662505355e1,Maria Drug Store,Maria Aquino,+63 961 881 9903,pharmacy,2024-02-24,active
+8f9185f1-d65f-5083-950a-68d3559da972,Erlinda Express,Erlinda Ramos,+63 928 685 7274,convenience_store,2025-10-07,active
+1b2288ee-86de-59c2-81f6-80154dfe8e55,Ernesto Pisong Net,Ernesto Reyes,+63 955 822 7246,internet_cafe,2024-09-13,active
+7b1840b9-bdd5-5ce6-b939-745fcf909bf7,Lorna Padala Center,Lorna Ocampo,+63 918 229 9229,remittance_center,2025-03-31,inactive
+ea1d7394-bee2-5f76-b9b3-6e00e146b614,Tindahan ni Corazon,Corazon Bautista,+63 920 638 8486,sari_sari_store,2025-02-10,active
+a69e8a84-068f-5301-a6a8-667557e0c3a5,Miguel's Computer Shop,Miguel Flores,+63 921 176 8692,internet_cafe,2025-06-09,active
+314d870c-8c10-5b0d-bd0c-eba0b5f9aa15,Aling Carmen's Store,Carmen Rivera,+63 935 972 9742,sari_sari_store,2024-10-23,active
+b209d63f-6ab2-5f64-87dd-4019360789d1,Luz's Mini Mart,Luz Gonzales,+63 918 732 2121,sari_sari_store,2026-01-28,active
+8437cfe1-9020-548c-8cd3-de09e5deea2a,Gloria Pawnshop,Gloria Andrade,+63 919 544 2612,pawnshop,2025-04-10,active
+9de96434-0093-53d0-997d-e616efb958da,Roberto Express,Roberto Andrade,+63 918 432 1919,convenience_store,2025-10-18,active
+67e1a76a-b9fb-56c5-9a7c-6531855a3dc1,Mang Reynaldo's Tindahan,Reynaldo Flores,+63 928 643 7751,sari_sari_store,2026-07-29,inactive
+36f65bbd-99a6-520f-b4c8-66206852175d,Lorna Remittance,Lorna Garcia,+63 926 180 7267,remittance_center,2024-02-21,inactive
+a99bbcb9-161c-5cc8-aaf3-967097c637c6,Eduardo Remittance,Eduardo Gonzales,+63 928 572 5161,remittance_center,2025-02-05,active
+4f4411e2-a7d1-529a-8e58-3e8d537297ca,Tindahan ni Gloria,Gloria Santos,+63 930 793 9955,sari_sari_store,2024-03-09,active
+0af5898f-90d4-5700-a781-60734fced551,Rolando's Mini Mart,Rolando Aquino,+63 930 754 7951,sari_sari_store,2026-08-27,active
+013e8c38-42ba-5640-8a9d-6e248d294d71,Corazon Express,Corazon Andrade,+63 945 973 8916,convenience_store,2025-11-23,active
+4fbef143-4cf8-57d6-976b-ee85ac72bc73,Danilo's Sari-Sari,Danilo Castro,+63 966 402 5837,sari_sari_store,2026-01-19,active
+eb790d0c-f670-52ca-aa2c-3860f83db2c2,Danilo Remittance,Danilo Tomas,+63 966 985 1803,remittance_center,2023-12-07,inactive
+5ebdc149-f8de-5720-bbfa-fe8e2c26612b,Maria Internet Cafe,Maria Andrade,+63 975 921 6772,internet_cafe,2025-05-11,active
+0643a362-5a84-57e2-ac8b-c7b7bb047469,Antonio Lending,Antonio Dela Cruz,+63 921 743 2591,pawnshop,2026-07-14,active
+3c6da03b-4b8c-5554-a096-c8db4d9bd403,Aling Lorna's Store,Lorna Lopez,+63 966 473 3153,sari_sari_store,2025-09-05,active
+d1f98c08-8d27-53c5-af92-1cf24bc34d50,Mang Ramon's Tindahan,Ramon Flores,+63 927 235 9837,sari_sari_store,2026-02-08,active
+94df9653-7095-5a87-a741-22b4fb301e34,Ana Pharmacy,Ana Tomas,+63 929 944 8894,pharmacy,2024-09-06,active
+af5d327a-a719-505e-802e-6fd05e38b512,Corazon Internet Cafe,Corazon Ramos,+63 950 177 3306,internet_cafe,2024-05-29,active
+a0b8518e-7d80-5f82-a20d-3cbe7d112485,Josefina Padala Center,Josefina Rivera,+63 919 909 7464,remittance_center,2024-03-16,active
+fa94556b-7505-50c0-b023-88d6a167021c,Tindahan ni Rosa,Rosa Bautista,+63 936 788 5295,sari_sari_store,2025-05-31,inactive
+4ccab8bd-0a7c-5ca4-a99d-09be8699f063,Aling Nelia's Store,Nelia Aquino,+63 928 582 1410,sari_sari_store,2024-03-08,inactive
+385c81cf-9b5a-5b56-be1d-f622688fa5e9,Ramon Pharmacy,Ramon Dela Cruz,+63 977 164 8606,pharmacy,2023-11-16,active
+52abd550-ee75-5a08-bdc3-55913f9d1772,Ernesto Remittance,Ernesto Bautista,+63 918 138 5986,remittance_center,2025-07-04,active
+d92b92f2-71a8-54fc-b3c3-5bd8772325e6,Carlos's Mini Mart,Carlos Torres,+63 921 497 8432,sari_sari_store,2026-05-09,active
+33f8fbf7-2b13-5279-a517-41154b2a90bd,Josefina Padala Center,Josefina Villanueva,+63 966 860 3531,remittance_center,2025-09-01,active
+10e0a866-2701-59df-8120-ae1c0706e2b2,Carlos Padala Center,Carlos Gonzales,+63 929 133 7070,remittance_center,2025-01-31,active
+bc2496ce-7fc4-5ea8-95db-88e19f61df14,Rolando Convenience,Rolando Torres,+63 920 802 7018,convenience_store,2025-08-17,suspended
+d1e2cea1-fb3f-5fdd-874e-1f8a815e46ad,Reynaldo Padala Center,Reynaldo Reyes,+63 929 294 3001,remittance_center,2024-03-29,active
+67f4fe18-a14b-5468-be9a-39412a820033,Gloria's Mini Mart,Gloria Mendoza,+63 917 151 6464,sari_sari_store,2024-06-06,active
+a5971392-1e30-508d-a138-19bc94042391,Mang Lorna's Tindahan,Lorna Castro,+63 919 949 4394,sari_sari_store,2026-04-19,inactive
+8b8bc841-15ad-5fba-8484-e04da45daf92,Nelia's Sari-Sari,Nelia Torres,+63 921 907 1046,sari_sari_store,2026-08-01,active
+a0b86899-3246-5640-85ef-64fd9be8a655,Miguel's Sari-Sari,Miguel Villanueva,+63 926 212 1422,sari_sari_store,2024-01-14,active
+56dbf964-c0af-5107-ad4e-b1da9ce1d774,Reynaldo's Mini Mart,Reynaldo Torres,+63 935 116 3854,sari_sari_store,2025-12-24,active
+56954d98-5581-50e8-908a-456d43e72cf5,Miguel's Mini Mart,Miguel Flores,+63 920 863 2041,sari_sari_store,2026-04-21,active
+0844d6e0-fd32-56b9-8de3-0c60acca01ca,Rosario Mini Stop,Rosario Aquino,+63 966 211 8405,convenience_store,2026-06-05,suspended
+1f9f8714-4f06-5e64-ae37-c2187d16c37f,Carmen's Mini Mart,Carmen Reyes,+63 930 569 1510,sari_sari_store,2026-03-31,active
+56abcfba-1fb2-5007-8500-ff433828a68e,Corazon Convenience,Corazon Rivera,+63 920 602 8267,convenience_store,2026-05-06,active
+cb81b398-f15f-565d-8945-4235ba90c00d,Mang Ramon's Tindahan,Ramon Dela Cruz,+63 919 229 5505,sari_sari_store,2025-01-31,inactive
+37c5c4ef-4d4b-5fa6-8903-7a2371d1f83b,Sangla ni Elena,Elena Villanueva,+63 935 490 9692,pawnshop,2024-02-04,active
+4a632666-9dc5-5afa-91a5-3be36d9742b5,Ana Convenience,Ana Dela Cruz,+63 920 912 2874,convenience_store,2024-05-13,suspended
+6ef69ec5-a85c-5514-8d62-3115d1e3d746,Corazon Pisong Net,Corazon Mendoza,+63 950 333 7779,internet_cafe,2025-02-01,active
+d9b472f7-7de6-552f-8235-c38e13be13ed,Danilo Mini Stop,Danilo Flores,+63 920 420 7992,convenience_store,2024-03-22,active
+4ae73bc0-2182-5874-aa62-df511685dffd,Ricardo Remittance,Ricardo Aquino,+63 955 168 2494,remittance_center,2026-07-18,active
+18130ea2-9631-5aff-a157-524d47b0b089,Ernesto's Sari-Sari,Ernesto Bautista,+63 921 669 1982,sari_sari_store,2026-04-16,inactive
+ac33aaec-3637-5817-85cb-dbc0380a3250,Botica ni Rosa,Rosa Ramos,+63 920 520 6793,pharmacy,2025-11-21,active
+00c00243-2a79-5b7b-9026-d6aa8ca41efd,Jose's Computer Shop,Jose Andrade,+63 930 460 2697,internet_cafe,2024-01-21,inactive
+0991acb0-6252-5f07-bac7-2a192f862699,Botica ni Antonio,Antonio Ocampo,+63 955 329 2773,pharmacy,2024-09-19,active
+488eb288-2053-5281-b7c0-d3c19c3f8fad,Reynaldo Drug Store,Reynaldo Bautista,+63 966 331 8030,pharmacy,2024-01-19,suspended
+083e4bd3-6619-56e0-b2cc-21a2095e8d6b,Nelia's Computer Shop,Nelia Dela Cruz,+63 977 670 1430,internet_cafe,2025-10-22,inactive
+eb900bc6-3f83-54b9-86f7-d16787153978,Nelia Remittance,Nelia Tomas,+63 926 379 6062,remittance_center,2025-09-28,active
+00b55fa4-d3cf-595b-ab8e-beb9c3cde931,Mang Juan's Tindahan,Juan Garcia,+63 966 773 7566,sari_sari_store,2025-04-04,active
+0588baf7-0d22-5d47-a09e-d14a1f84235d,Aling Josefina's Store,Josefina Santos,+63 956 320 7163,sari_sari_store,2024-07-12,active
+c611b988-db0c-55f2-a5a9-d9f404ea1d59,Ramon Convenience,Ramon Garcia,+63 930 838 6314,convenience_store,2025-03-24,inactive
+b0bc354e-fa44-552d-9f31-ebeae9f12614,Pedro Pawnshop,Pedro Reyes,+63 926 872 1815,pawnshop,2024-04-27,active
+55922034-d285-5c79-b85a-4fb51c5c06d7,Tindahan ni Rolando,Rolando Flores,+63 975 552 7785,sari_sari_store,2025-06-10,active
+3db126c5-4b44-57d1-b757-5e12f41ae301,Aling Rosario's Store,Rosario Hernandez,+63 936 540 2816,sari_sari_store,2025-04-01,active
+153cbfcb-d7ee-5bb5-8f1e-9fa1255fcd02,Gloria Padala Center,Gloria Castro,+63 956 783 6053,remittance_center,2025-11-27,active
+fe05c33a-1202-5d84-9396-70388399d578,Aling Danilo's Store,Danilo Dela Cruz,+63 917 309 5938,sari_sari_store,2025-09-08,active
+d32d6b8a-610c-5a3b-89c6-f5e0020c7e86,Miguel Pisong Net,Miguel Tomas,+63 935 222 1126,internet_cafe,2024-07-02,active
+065bfd44-3620-54cf-8b48-3611ab6d6fa0,Ernesto Internet Cafe,Ernesto Garcia,+63 945 645 4770,internet_cafe,2024-06-23,suspended
+d644c57d-bbdd-5e77-9062-f1cf41e2ae30,Nelia Pharmacy,Nelia Aquino,+63 945 982 1693,pharmacy,2025-01-22,active
+7e8b6e9a-6d85-51b9-848d-bbd3822f7caf,Rolando's Sari-Sari,Rolando Cruz,+63 966 539 7626,sari_sari_store,2025-01-02,active
+70e7a739-58c6-545b-a50c-0b9e31813f38,Aling Carlos's Store,Carlos Rivera,+63 935 275 8538,sari_sari_store,2024-05-13,active
+41259318-c405-5b03-92fd-44604ff42311,Mang Ernesto's Tindahan,Ernesto Bautista,+63 946 703 7560,sari_sari_store,2024-05-31,suspended
+e1221262-2f20-596d-adb5-9837b7a28fcd,Danilo's Sari-Sari,Danilo Andrade,+63 928 441 3754,sari_sari_store,2026-06-29,active
+667a7c30-44f2-51f6-9851-b1077e834434,Botica ni Luz,Luz Bautista,+63 956 298 6724,pharmacy,2025-03-23,active
+3bff4c7d-2233-5ca1-ae14-38c7cc7f2bf4,Nelia Internet Cafe,Nelia Ocampo,+63 920 249 5193,internet_cafe,2023-09-01,active
+f14056b6-fd78-5b41-9638-fc96e21bcff4,Aling Carmen's Store,Carmen Ocampo,+63 926 891 9095,sari_sari_store,2024-04-27,active
+e5fd760c-3231-5537-adee-54be94269c29,Elena Pisong Net,Elena Castro,+63 966 758 6295,internet_cafe,2024-07-28,active
+41935f09-b6ca-581c-bf96-7abc100f06d3,Tindahan ni Rolando,Rolando Cruz,+63 950 746 5961,sari_sari_store,2026-01-13,active
+48d45a5c-902b-5f08-85d5-6eafbb311485,Sangla ni Jose,Jose Aquino,+63 919 417 8565,pawnshop,2025-08-08,active
+dffb1e59-bc75-5211-a272-a567d5528303,Jose's Sari-Sari,Jose Aquino,+63 919 760 2479,sari_sari_store,2026-06-02,inactive
+5a11704d-b298-5ca4-833c-9cd92603c306,Ana Lending,Ana Rivera,+63 966 667 1672,pawnshop,2024-06-18,active
+83923bb0-d6ae-5c73-8abd-4d622a375901,Luz Lending,Luz Mendoza,+63 975 587 9214,pawnshop,2025-01-15,active
+3fe338bb-039f-5f45-9517-ad4afe158e4f,Rolando's Sari-Sari,Rolando Bautista,+63 919 616 3827,sari_sari_store,2025-03-18,active
+f5e6a8c9-581d-5dac-8976-6054bc3169b7,Tindahan ni Teresa,Teresa Lopez,+63 956 635 3600,sari_sari_store,2024-04-06,active
+a2c39090-0923-54e4-929e-a1aaf602cd8c,Tindahan ni Erlinda,Erlinda Andrade,+63 946 893 6543,sari_sari_store,2025-10-03,inactive
+ac65066d-b102-5a78-8155-6bbf2b5e503d,Aling Lorna's Store,Lorna Ramos,+63 935 196 7333,sari_sari_store,2024-02-03,active
+a1f8e0eb-cff7-5623-834b-257244fe5257,Mang Josefina's Tindahan,Josefina Dela Cruz,+63 935 183 3317,sari_sari_store,2025-08-13,active
+fb7f081f-7244-5b10-bf96-5a5c71d91821,Mang Luz's Tindahan,Luz Rivera,+63 975 825 2388,sari_sari_store,2024-05-01,active
+69b4489e-792d-59fd-b4c9-c9775fd73864,Danilo Pharmacy,Danilo Ramos,+63 956 195 7937,pharmacy,2024-12-04,suspended
+f81d73e4-32ea-5026-8d02-a27d7c2787d2,Juan's Sari-Sari,Juan Aquino,+63 926 319 6598,sari_sari_store,2023-11-21,active
+3653b042-f5c7-53ca-a026-e836fad54ed0,Mang Eduardo's Tindahan,Eduardo Ocampo,+63 919 402 2657,sari_sari_store,2025-10-20,suspended
+02a1acee-c924-5a6b-9521-8270ced89683,Rosa Internet Cafe,Rosa Hernandez,+63 935 997 3147,internet_cafe,2024-08-30,inactive
+f7474550-32b5-5dc3-be01-34569def7da5,Mang Miguel's Tindahan,Miguel Garcia,+63 975 928 3712,sari_sari_store,2026-08-08,active
+a3113e3c-2807-5aec-9a02-d36874f9477e,Mang Ernesto's Tindahan,Ernesto Aquino,+63 950 725 5668,sari_sari_store,2026-04-19,active
+2902b5fe-d092-5530-b814-55ae34b57d27,Rosa's Sari-Sari,Rosa Torres,+63 955 955 4178,sari_sari_store,2025-04-07,active
+25adc787-7cb0-50e0-a658-3a36e4835182,Elena Padala Center,Elena Lopez,+63 930 896 7256,remittance_center,2023-10-19,suspended
+69b736df-8bf2-5947-ab1c-49c40a9798e5,Ernesto Pharmacy,Ernesto Garcia,+63 975 241 5096,pharmacy,2026-08-27,active
+0b872d85-1be9-53bb-88d5-11bbdbaf3796,Maria Remittance,Maria Aquino,+63 956 971 3042,remittance_center,2024-03-31,active
+34fd9ecb-cb3a-5d47-add4-306649dcd322,Rosario's Sari-Sari,Rosario Garcia,+63 950 625 3414,sari_sari_store,2026-03-06,active
+647b9e89-e7e7-57bf-ae92-dc6a4d54a8ad,Tindahan ni Erlinda,Erlinda Torres,+63 936 127 7797,sari_sari_store,2025-08-22,active
+72f6a3f6-f1ed-5550-81b4-f25ab9ed254a,Ana Express,Ana Aquino,+63 945 183 7142,convenience_store,2025-03-18,active
+7dda4f32-3a8c-578a-a12a-f8596633a843,Ramon's Sari-Sari,Ramon Bautista,+63 921 240 1627,sari_sari_store,2025-10-29,active

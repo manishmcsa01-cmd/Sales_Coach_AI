@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Outlet Details: {{ outlet_id }}</h2>
+<div hx-get="/api/briefs/{{ outlet_id }}" hx-trigger="load" hx-target="#brief-container">
+    <div id="brief-container" class="p-4 bg-white rounded shadow">
+        Loading brief...
+    </div>
+</div>
+{% endblock %}

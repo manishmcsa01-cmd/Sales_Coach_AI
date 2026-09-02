@@ -1,0 +1,174 @@
+# Sales Coach AI - Data Dictionary
+# 13 tables | 29,644 records | Philippine GCash field-sales domain
+
+areas:
+  description: "Geographic sales territories managed by Sales Managers"
+  rows: 5
+  columns:
+    id: { type: UUID, pk: true, description: "Unique area identifier" }
+    area_name: { type: String, description: "Area name (e.g. Metro Manila North)" }
+    region: { type: String, description: "Parent region (NCR, Visayas, Mindanao, Central Luzon)" }
+
+products:
+  description: "GCash product/service catalog (Cash-In, Bills, GCredit, etc.)"
+  rows: 10
+  columns:
+    id: { type: UUID, pk: true }
+    product_name: { type: String, description: "Display name" }
+    product_code: { type: String, description: "Short code (GCIN, BILLS, QR)" }
+    category: { type: String, values: [cash, payments, telco, transfer, insurance, invest, lending, savings] }
+
+managers:
+  description: "Sales Managers who supervise DSPs within an area"
+  rows: 5
+  columns:
+    id: { type: UUID, pk: true }
+    full_name: { type: String }
+    email: { type: String, unique: true }
+    phone: { type: String }
+    area_id: { type: UUID, fk: areas.id }
+    status: { type: String, values: [active] }
+    hire_date: { type: Date }
+
+dsps:
+  description: "Distributor Sales Personnel - field reps who visit outlets"
+  rows: 40
+  columns:
+    id: { type: UUID, pk: true }
+    full_name: { type: String }
+    email: { type: String, unique: true }
+    phone: { type: String }
+    area_id: { type: UUID, fk: areas.id }
+    manager_id: { type: UUID, fk: managers.id }
+    status: { type: String, values: [active, inactive] }
+    hire_date: { type: Date }
+    daily_target_visits: { type: Integer, range: "8-15" }
+
+merchants:
+  description: "Business owners operating GCash outlet locations"
+  rows: 200
+  columns:
+    id: { type: UUID, pk: true }
+    business_name: { type: String }
+    owner_name: { type: String }
+    contact_number: { type: String }
+    business_type: { type: String, values: [sari_sari_store, convenience_store, pharmacy, pawnshop, remittance_center, internet_cafe] }
+    registration_date: { type: Date }
+    status: { type: String, values: [active, suspended, inactive] }
+
+outlets:
+  description: "Physical store locations - CENTRAL ENTITY referenced by most tables"
+  rows: 708
+  columns:
+    id: { type: UUID, pk: true }
+    outlet_name: { type: String }
+    merchant_id: { type: UUID, fk: merchants.id }
+    area_id: { type: UUID, fk: areas.id }
+    address: { type: String }
+    city: { type: String }
+    province: { type: String }
+    latitude: { type: Float }
+    longitude: { type: Float }
+    outlet_type: { type: String, values: [tier1_urban, tier2_suburban, tier3_rural] }
+    status: { type: String, values: [active, inactive, at_risk, churned] }
+    onboarding_date: { type: Date }
+
+assignments:
+  description: "DSP-to-Outlet mapping - controls data isolation/multi-tenancy"
+  rows: 708
+  columns:
+    id: { type: UUID, pk: true }
+    dsp_id: { type: UUID, fk: dsps.id }
+    outlet_id: { type: UUID, fk: outlets.id }
+    assigned_date: { type: Date }
+    status: { type: String, values: [active] }
+
+outlet_scores:
+  description: "AI/ML-generated priority scores - determines visit order"
+  rows: 708
+  columns:
+    id: { type: UUID, pk: true }
+    outlet_id: { type: UUID, fk: outlets.id }
+    priority_score: { type: Float, range: "10-100", description: "Overall weighted priority (higher = needs more attention)" }
+    transaction_score: { type: Float, range: "0-100" }
+    engagement_score: { type: Float, range: "0-100" }
+    product_adoption_score: { type: Float, range: "0-100" }
+    risk_score: { type: Float, range: "0-100" }
+    contributing_factors: { type: String, description: "Pipe-delimited risk factors", example: "low_transaction_volume|missed_visits" }
+    scored_at: { type: DateTime }
+  score_interpretation:
+    high: ">80 - Red - Needs immediate attention"
+    medium: "50-80 - Yellow - Monitor and follow up"
+    low: "<50 - Green - Healthy outlet"
+  factor_values:
+    - low_transaction_volume
+    - declining_revenue
+    - missed_visits
+    - product_gap
+    - competitor_risk
+    - high_churn_probability
+    - inactive_products
+
+transactions:
+  description: "GCash financial transactions at outlets (90 days of data)"
+  rows: 22000
+  columns:
+    id: { type: UUID, pk: true }
+    outlet_id: { type: UUID, fk: outlets.id }
+    txn_type: { type: String, values: [cash_in, cash_out, bills_payment, buy_load, send_money, pay_qr] }
+    amount: { type: Float, range: "50-50000", currency: PHP }
+    currency: { type: String, default: PHP }
+    txn_date: { type: DateTime }
+    status: { type: String, values: [completed, failed, reversed], distribution: "90/5/5" }
+
+visit_logs:
+  description: "DSP field visit records with check-in/out and outcomes"
+  rows: 1200
+  columns:
+    id: { type: UUID, pk: true }
+    dsp_id: { type: UUID, fk: dsps.id }
+    outlet_id: { type: UUID, fk: outlets.id }
+    visit_date: { type: Date }
+    check_in_time: { type: DateTime }
+    check_out_time: { type: DateTime }
+    outcome: { type: String, values: [successful, follow_up_needed, merchant_absent, no_action_needed] }
+    notes: { type: String, nullable: true }
+
+action_recommendations:
+  description: "AI-generated action items for DSPs per outlet"
+  rows: 500
+  columns:
+    id: { type: UUID, pk: true }
+    outlet_id: { type: UUID, fk: outlets.id }
+    dsp_id: { type: UUID, fk: dsps.id }
+    action_type: { type: String, values: [visit_merchant, upsell_product, resolve_issue, training, reactivation, follow_up] }
+    description: { type: String }
+    priority: { type: String, values: [high, medium, low] }
+    status: { type: String, values: [pending, in_progress, completed, skipped], distribution: "40/20/30/10" }
+    due_date: { type: Date }
+    created_at: { type: DateTime }
+
+outlet_products:
+  description: "Product activations per outlet - tracks which GCash services are live"
+  rows: 3519
+  columns:
+    id: { type: UUID, pk: true }
+    outlet_id: { type: UUID, fk: outlets.id }
+    product_id: { type: UUID, fk: products.id }
+    status: { type: String, values: [active, inactive, pending], distribution: "80/10/10" }
+    activated_date: { type: Date }
+
+users:
+  description: "Application login accounts with role-based access"
+  rows: 46
+  columns:
+    id: { type: UUID, pk: true }
+    email: { type: String, unique: true }
+    password_hash: { type: String, algorithm: SHA-256 }
+    role: { type: String, values: [dsp, manager, admin] }
+    dsp_id: { type: UUID, fk: dsps.id, nullable: true, description: "Linked DSP profile (null for managers/admin)" }
+    is_active: { type: Boolean }
+  accounts:
+    dsps: 40
+    managers: 5
+    admin: 1

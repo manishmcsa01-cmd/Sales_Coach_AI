@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Ask Sales Coach AI</h2>
+<div class="bg-white rounded-lg shadow flex flex-col" style="height: 70vh;">
+    <!-- Chat history -->
+    <div id="chat-history" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="flex justify-start">
+            <div class="bg-blue-50 rounded-lg p-3 max-w-lg">
+                <p class="text-sm text-gray-700">👋 Hi! I'm your Sales Coach AI. Ask me anything about your outlets, transactions, or performance. Try one of these:</p>
+                <ul class="text-sm text-blue-600 mt-2 space-y-1">
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">Which outlets should I visit first today?</li>
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">How many outlets are at risk of churning?</li>
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">Show me the transaction summary</li>
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">What's my visit history?</li>
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">Give me an area overview</li>
+                    <li class="cursor-pointer hover:underline" onclick="askSuggested(this.textContent)">What actions are pending?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="border-t p-4">
+        <form id="askForm" class="flex gap-2">
+            <input type="text" id="questionInput" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ask about your outlets, performance, risks..." required>
+            <button type="submit" id="sendBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let conversationId = null;
+
+function formatMarkdown(text) {
+    // Simple markdown: bold, line breaks, lists
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n- /g, '<br>• ')
+        .replace(/\n(\d+)\. /g, '<br>$1. ')
+        .replace(/\n/g, '<br>');
+}
+
+function addMessage(content, isUser) {
+    const history = document.getElementById('chat-history');
+    const div = document.createElement('div');
+    div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+    div.innerHTML = `
+        <div class="${isUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'} rounded-lg p-3 max-w-lg">
+            <div class="text-sm">${isUser ? content : formatMarkdown(content)}</div>
+        </div>
+    `;
+    history.appendChild(div);
+    history.scrollTop = history.scrollHeight;
+}
+
+function addLoading() {
+    const history = document.getElementById('chat-history');
+    const div = document.createElement('div');
+    div.id = 'loading-msg';
+    div.className = 'flex justify-start';
+    div.innerHTML = '<div class="bg-gray-100 rounded-lg p-3"><span class="animate-pulse text-gray-500">Thinking...</span></div>';
+    history.appendChild(div);
+    history.scrollTop = history.scrollHeight;
+}
+
+function removeLoading() {
+    const el = document.getElementById('loading-msg');
+    if (el) el.remove();
+}
+
+async function sendQuestion(question) {
+    const token = localStorage.getItem('access_token');
+    const headers = {'Content-Type': 'application/json'};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    addMessage(question, true);
+    addLoading();
+
+    try {
+        const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({question, conversation_id: conversationId})
+        });
+        removeLoading();
+
+        if (!res.ok) throw new Error('Failed to get response');
+
+        const data = await res.json();
+        conversationId = data.conversation_id;
+        addMessage(data.answer, false);
+    } catch (err) {
+        removeLoading();
+        addMessage('Sorry, something went wrong. Please try again.', false);
+    }
+}
+
+function askSuggested(text) {
+    document.getElementById('questionInput').value = '';
+    sendQuestion(text);
+}
+
+document.getElementById('askForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('questionInput');
+    const question = input.value.trim();
+    if (!question) return;
+    input.value = '';
+    sendQuestion(question);
+});
+</script>
+{% endblock %}

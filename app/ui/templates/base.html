@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Coach AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-900 px-6 py-3 text-white flex justify-between items-center shadow">
+        <h1 class="text-xl font-bold">🎯 Sales Coach AI</h1>
+        <div class="flex items-center gap-4">
+            <span id="user-info" class="text-sm"></span>
+            <button onclick="doLogout()" class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1.5 rounded transition">
+                Logout
+            </button>
+        </div>
+    </nav>
+    <div class="flex">
+        <aside class="w-64 min-h-screen bg-white shadow-md p-4 space-y-2" id="sidebar-nav">
+        </aside>
+        <main class="flex-1 p-6">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Auth guard: redirect to login if no token
+        (function() {
+            var token = localStorage.getItem('access_token');
+            if (!token && window.location.pathname !== '/login') {
+                window.location.href = '/login';
+                return;
+            }
+            // Show user info
+            var name = localStorage.getItem('user_name');
+            var role = localStorage.getItem('user_role');
+            var el = document.getElementById('user-info');
+            if (el && name) {
+                var emoji = role === 'admin' ? '👑' : role === 'manager' ? '📊' : '🏪';
+                el.textContent = emoji + ' ' + name + ' (' + role + ')';
+            }
+
+            // Populate sidebar based on role
+            var sidebar = document.getElementById('sidebar-nav');
+            if (sidebar && role) {
+                var html = '<a href="/dashboard" class="block p-2 hover:bg-gray-200 rounded">Dashboard</a>';
+                
+                if (role === 'manager') {
+                    html += '<a href="/dsp-performance" class="block p-2 hover:bg-gray-200 rounded">DSP Performance</a>';
+                    html += '<a href="/area-summary" class="block p-2 hover:bg-gray-200 rounded">Area Summary</a>';
+                } else if (role === 'admin') {
+                    html += '<a href="/area-summary" class="block p-2 hover:bg-gray-200 rounded">All Areas</a>';
+                    html += '<a href="/admin/users" class="block p-2 hover:bg-gray-200 rounded">User Management</a>';
+                    html += '<a href="/admin/health" class="block p-2 hover:bg-gray-200 rounded">System Health</a>';
+                }
+                
+                html += '<a href="/ask" class="block p-2 hover:bg-gray-200 rounded">Ask</a>';
+                sidebar.innerHTML = html;
+            }
+        })();
+
+        // Logout: clear everything and redirect
+        function doLogout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_role');
+            window.location.replace('/login');
+        }
+    </script>
+</body>
+</html>

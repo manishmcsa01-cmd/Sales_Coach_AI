@@ -1,0 +1,11 @@
+id,product_name,product_code,category
+0b4a6e3b-d5cd-5d10-87c4-ab6fda0aa831,GCash Cash-In,GCIN,cash
+018fefc2-38fb-5f92-8391-2fe032547753,GCash Cash-Out,GCOUT,cash
+a9db23aa-1685-5f58-8beb-3c1c13702b6a,Bills Payment,BILLS,payments
+868b1dbf-370d-5142-be8c-5a80dfad818d,Buy Load,LOAD,telco
+9502494a-7b3f-5213-8df6-4e5e5e22101f,Send Money,SEND,transfer
+0a1506ca-ede6-548b-91b8-0730277089b0,Pay QR,QR,payments
+f080ca1b-6cb2-5242-98ed-4612ac098b94,GInsure,GINS,insurance
+fc407d89-26e4-55ce-a2dc-fdae931500f1,GInvest,GINV,invest
+69d2e248-598e-501c-a2eb-fb4fb8ccf487,GCredit,GCRD,lending
+4b343160-5928-5bdb-83ef-2c0f9faba1dd,GSave,GSAV,savings

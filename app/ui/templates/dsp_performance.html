@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">DSP Performance</h2>
+    <p class="text-gray-500 mt-1">Manage your team and track their performance.</p>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full text-left border-collapse" id="dsp-table">
+        <thead>
+            <tr class="bg-gray-100 text-gray-600 text-sm">
+                <th class="p-3">Name</th>
+                <th class="p-3">Email</th>
+                <th class="p-3">Outlets</th>
+                <th class="p-3">Visits This Month</th>
+                <th class="p-3">Completion Rate</th>
+            </tr>
+        </thead>
+        <tbody id="dsp-list">
+            <tr><td colspan="5" class="p-3 text-center text-gray-500">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+async function loadDSPs() {
+    const token = localStorage.getItem('access_token');
+    const headers = token ? {'Authorization': `Bearer ${token}`} : {};
+    
+    try {
+        const res = await fetch('/api/manager/dsps', {headers});
+        const data = await res.json();
+        
+        const tbody = document.getElementById('dsp-list');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-gray-500">No DSPs found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.map(dsp => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-medium">${dsp.name}</td>
+                <td class="p-3 text-sm text-gray-500">${dsp.email}</td>
+                <td class="p-3">${dsp.outlet_count}</td>
+                <td class="p-3">${dsp.visits_this_month}</td>
+                <td class="p-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${dsp.completion_rate}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">${dsp.completion_rate.toFixed(1)}%</span>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        document.getElementById('dsp-list').innerHTML = `<tr><td colspan="5" class="p-3 text-center text-red-500">Error: ${err.message}</td></tr>`;
+    }
+}
+loadDSPs();
+</script>
+{% endblock %}

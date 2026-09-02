@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: salescoach-app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=staging
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID}
+      - BEDROCK_GUARDRAIL_ID=${BEDROCK_GUARDRAIL_ID}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - DYNAMODB_TABLE_PREFIX=${DYNAMODB_TABLE_PREFIX}
+      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
+      - SAGEMAKER_ENDPOINT_NAME=${SAGEMAKER_ENDPOINT_NAME}
+      - SNS_ALERT_TOPIC_ARN=${SNS_ALERT_TOPIC_ARN}
+      - OPENSEARCH_ENDPOINT=${OPENSEARCH_ENDPOINT}
+      - KMS_KEY_ID=${KMS_KEY_ID}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: salescoach-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: salescoach
+      POSTGRES_PASSWORD: localdev123
+      POSTGRES_DB: salescoach_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U salescoach -d salescoach_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: salescoach-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

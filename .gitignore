@@ -1,0 +1,135 @@
+# ==============================================================
+# GCash Sales Coach AI — .gitignore
+# Ensures NO secrets, API keys, or sensitive data leak to GitHub
+# ==============================================================
+
+# ========================
+# SECRETS & CREDENTIALS
+# ========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+service-account.json
+aws-credentials
+*.secret
+
+# ========================
+# AWS SPECIFIC
+# ========================
+.aws/
+aws-exports.js
+samconfig.toml
+cdk.out/
+.cdk.staging/
+cdk.context.json
+
+# ========================
+# PYTHON
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.python-version
+
+# ========================
+# IDE & EDITORS
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+.vs/
+
+# ========================
+# DATABASE FILES
+# ========================
+*.db
+*.sqlite
+*.sqlite3
+salescoach.db
+
+# ========================
+# LOCAL STORAGE (mock AWS)
+# ========================
+local_storage/
+
+# ========================
+# OS FILES
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# ========================
+# LOGS & TEMP
+# ========================
+*.log
+logs/
+tmp/
+temp/
+scratch/
+
+# ========================
+# DOCKER
+# ========================
+.dockerignore
+docker-compose.override.yml
+
+# ========================
+# TEST & COVERAGE
+# ========================
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# ========================
+# NODE (if any frontend)
+# ========================
+node_modules/
+package-lock.json
+yarn.lock
+
+# ========================
+# JUPYTER
+# ========================
+.ipynb_checkpoints/
+
+# ========================
+# DATA - Large generated files
+# (Keep CSVs for demo, but exclude
+#  any exported data with real PII)
+# ========================
+# data/csv/ is included for demo
+# Uncomment below to exclude:
+# data/csv/
