@@ -1,33 +1,48 @@
 version: '3.8'
 
 services:
+  # ---- Application ----
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: salescoach-app
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - APP_ENV=staging
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
-      - AWS_REGION=${AWS_REGION}
+      - APP_ENV=${APP_ENV:-staging}
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://salescoach:localdev123@postgres:5432/salescoach_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - AWS_REGION=${AWS_REGION:-ap-southeast-1}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID}
+      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID:-anthropic.claude-3-sonnet-20240229-v1:0}
       - BEDROCK_GUARDRAIL_ID=${BEDROCK_GUARDRAIL_ID}
+      - BEDROCK_GUARDRAIL_VERSION=${BEDROCK_GUARDRAIL_VERSION:-DRAFT}
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
-      - DYNAMODB_TABLE_PREFIX=${DYNAMODB_TABLE_PREFIX}
+      - DYNAMODB_TABLE_PREFIX=${DYNAMODB_TABLE_PREFIX:-salescoach}
       - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
       - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
       - SAGEMAKER_ENDPOINT_NAME=${SAGEMAKER_ENDPOINT_NAME}
       - SNS_ALERT_TOPIC_ARN=${SNS_ALERT_TOPIC_ARN}
       - OPENSEARCH_ENDPOINT=${OPENSEARCH_ENDPOINT}
       - KMS_KEY_ID=${KMS_KEY_ID}
-      - SECRET_KEY=${SECRET_KEY}
+      - CLOUDWATCH_LOG_GROUP=${CLOUDWATCH_LOG_GROUP:-salescoach-ai}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
+  # ---- PostgreSQL (local dev / staging) ----
   postgres:
     image: postgres:15-alpine
     container_name: salescoach-postgres
@@ -47,6 +62,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ---- Redis (local dev / staging) ----
   redis:
     image: redis:7-alpine
     container_name: salescoach-redis

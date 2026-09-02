@@ -37,6 +37,8 @@ An AI-powered coaching assistant for GCash's field sales team — Distributor Sa
 | **Amazon EventBridge** | Event-driven workflows |
 | **AWS KMS** | PII encryption at rest |
 | **AWS Secrets Manager** | Secure credential storage |
+| **Amazon ECR** | Docker container registry |
+| **Amazon ECS (Fargate)** | Serverless container orchestration |
 | **AWS CodeBuild** | CI/CD pipeline |
 
 ---
@@ -47,67 +49,54 @@ An AI-powered coaching assistant for GCash's field sales team — Distributor Sa
 salescoach-ai/
 ├── app/
 │   ├── api/
-│   │   ├── routes/          # FastAPI route handlers
-│   │   │   ├── auth.py      # Cognito login/logout
-│   │   │   ├── outlets.py   # Outlet CRUD & priority list
-│   │   │   ├── briefs.py    # AI-generated briefs & area summary
-│   │   │   ├── actions.py   # Action recommendations
-│   │   │   ├── ask.py       # NL chat → LangGraph agent
-│   │   │   ├── manager.py   # Manager dashboard & DSP metrics
-│   │   │   ├── admin.py     # Admin dashboard, users, health
-│   │   │   └── ui.py        # HTML page routes
-│   │   └── dependencies.py  # Auth guards, DB session
-│   ├── aws/                 # boto3 client wrappers
-│   │   ├── bedrock_client.py
-│   │   ├── cognito_client.py
-│   │   ├── s3_client.py
-│   │   ├── dynamodb_client.py
-│   │   ├── cloudwatch_client.py
-│   │   ├── sns_client.py
-│   │   ├── kms_client.py
-│   │   ├── xray_helpers.py
-│   │   ├── secrets_client.py
-│   │   ├── eventbridge_client.py
-│   │   └── sagemaker_client.py
-│   ├── db/
-│   │   ├── session.py       # Async SQLAlchemy engine (asyncpg)
-│   │   └── init_db.py       # Table creation
-│   ├── middleware/
-│   │   ├── audit.py         # CloudWatch audit logging
-│   │   └── tenant.py        # Multi-tenant context injection
-│   ├── models/              # 13 SQLAlchemy ORM models
-│   ├── schemas/             # Pydantic request/response schemas
+│   │   ├── routes/              # FastAPI route handlers
+│   │   │   ├── auth.py          # Cognito login/logout
+│   │   │   ├── outlets.py       # Outlet CRUD & priority list
+│   │   │   ├── briefs.py        # AI-generated briefs & area summary
+│   │   │   ├── ask.py           # NL chat → LangGraph agent
+│   │   │   ├── manager.py       # Manager dashboard & DSP metrics
+│   │   │   ├── admin.py         # Admin dashboard, users, health
+│   │   │   └── ui.py            # HTML page routes
+│   │   └── dependencies.py      # Auth guards, DB session
+│   ├── aws/                     # boto3 client wrappers (12 files)
+│   ├── db/                      # Async SQLAlchemy (asyncpg)
+│   ├── middleware/               # Audit logging, tenant context
+│   ├── models/                  # 13 SQLAlchemy ORM models
+│   ├── schemas/                 # Pydantic request/response schemas
 │   ├── ui/
-│   │   ├── templates/       # Jinja2 HTML templates
-│   │   └── static/          # CSS, JS assets
-│   ├── config.py            # Pydantic Settings (from .env)
-│   └── main.py              # FastAPI app entrypoint
+│   │   ├── templates/           # Jinja2 HTML templates
+│   │   └── static/              # CSS, JS assets
+│   ├── config.py                # Pydantic Settings (from .env)
+│   └── main.py                  # FastAPI app entrypoint
 ├── agents/
-│   ├── graph.py             # LangGraph StateGraph definition
-│   ├── state.py             # AgentState TypedDict
-│   ├── master_agent.py      # Orchestrator node
-│   ├── intent_agent.py      # Intent classification (Bedrock)
-│   ├── profile_agent.py     # Outlet data retrieval
-│   ├── ranking_agent.py     # Priority ranking
-│   ├── brief_agent.py       # AI brief generation (Bedrock)
-│   ├── recommendation_agent.py
-│   ├── nudge_agent.py
-│   ├── nl_response_agent.py
-│   ├── clarification_agent.py
-│   ├── prompts/             # System prompts for each agent
-│   └── tools/               # DB query & cache tools
+│   ├── graph.py                 # LangGraph StateGraph definition
+│   ├── state.py                 # AgentState TypedDict
+│   ├── master_agent.py          # Orchestrator node
+│   ├── intent_agent.py          # Intent classification (Bedrock)
+│   ├── profile_agent.py         # Outlet data retrieval
+│   ├── ranking_agent.py         # Priority ranking
+│   ├── brief_agent.py           # AI brief generation (Bedrock)
+│   ├── recommendation_agent.py  # Personalized recommendations
+│   ├── nudge_agent.py           # Smart nudges
+│   ├── nl_response_agent.py     # Natural language formatting
+│   ├── clarification_agent.py   # Clarifying questions
+│   ├── prompts/                 # System prompts per agent
+│   └── tools/                   # DB query & cache tools
 ├── data/
-│   ├── csv/                 # 13 synthetic CSV datasets
-│   ├── data_dictionary.yaml # Schema documentation
-│   ├── generate_csv.py      # Dataset generator script
-│   └── seed_rds.py          # RDS database seeder
-├── knowledge_graph/         # Knowledge graph builder
-├── .env.example             # Environment template (NO secrets)
-├── requirements.txt         # Python dependencies
-├── Dockerfile               # Production container
-├── docker-compose.yml       # Docker orchestration
-├── buildspec.yml            # AWS CodeBuild CI/CD
-└── README.md                # This file
+│   ├── csv/                     # 13 synthetic CSV datasets
+│   ├── data_dictionary.yaml     # Schema documentation
+│   ├── generate_csv.py          # Dataset generator script
+│   └── seed_rds.py              # RDS database seeder
+├── knowledge_graph/             # Knowledge graph builder
+├── Dockerfile                   # Multi-stage production build
+├── .dockerignore                # Excludes secrets from image
+├── docker-compose.yml           # Local dev with PostgreSQL + Redis
+├── ecs-task-definition.json     # ECS Fargate task definition
+├── buildspec.yml                # AWS CodeBuild CI/CD
+├── requirements.txt             # Python dependencies
+├── .env.example                 # Environment template (NO secrets)
+├── .gitignore                   # Blocks secrets from Git
+└── README.md                    # This file
 ```
 
 ---
@@ -130,61 +119,141 @@ salescoach-ai/
 
 ---
 
-## Setup & Deployment
+## Deployment
 
-### Prerequisites
+### Option 1: Docker Compose (Local Dev / Staging)
 
-- Python 3.11+
-- AWS Account with the following services provisioned:
-  - RDS PostgreSQL instance
-  - Cognito User Pool
-  - Bedrock model access (Claude 3 Sonnet)
-  - S3 bucket
-  - DynamoDB tables
-- AWS CLI configured (`aws configure`)
-
-### 1. Clone & Install
+Spins up the app with local PostgreSQL and Redis containers.
 
 ```bash
-git clone <repo-url>
-cd salescoach-ai
-pip install -r requirements.txt
-```
-
-### 2. Configure Environment
-
-```bash
+# 1. Configure
 cp .env.example .env
-# Edit .env with your real AWS resource ARNs/IDs
+# Edit .env with your AWS credentials (Bedrock, Cognito, etc.)
+
+# 2. Build & Run
+docker-compose up --build -d
+
+# 3. Seed database
+docker-compose exec app python -m data.seed_rds
+
+# 4. Access
+open http://localhost:8000
 ```
 
-> ⚠️ **NEVER commit `.env` to Git.** It contains secrets and API keys.
+---
 
-### 3. Seed the Database
+### Option 2: AWS ECR + ECS Fargate (Production)
+
+Full cloud deployment with containerized Fargate tasks.
+
+#### Step 1: Create ECR Repository
 
 ```bash
-python -m data.seed_rds
+aws ecr create-repository \
+    --repository-name salescoach-ai \
+    --region ap-southeast-1 \
+    --image-scanning-configuration scanOnPush=true
 ```
 
-### 4. Run Locally (Connecting to AWS)
+#### Step 2: Build & Push Docker Image
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
+# Authenticate Docker to ECR
+aws ecr get-login-password --region ap-southeast-1 | \
+    docker login --username AWS --password-stdin \
+    <ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com
 
-Open: http://localhost:8000
-
-### 5. Deploy to AWS (Docker → ECR → ECS)
-
-```bash
-# Build
+# Build the image
 docker build -t salescoach-ai .
 
-# Tag & Push to ECR
-aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.ap-southeast-1.amazonaws.com
-docker tag salescoach-ai:latest <account>.dkr.ecr.ap-southeast-1.amazonaws.com/salescoach-ai:latest
-docker push <account>.dkr.ecr.ap-southeast-1.amazonaws.com/salescoach-ai:latest
+# Tag for ECR
+docker tag salescoach-ai:latest \
+    <ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/salescoach-ai:latest
+
+# Push to ECR
+docker push \
+    <ACCOUNT_ID>.dkr.ecr.ap-southeast-1.amazonaws.com/salescoach-ai:latest
 ```
+
+#### Step 3: Store Secrets in AWS Secrets Manager
+
+```bash
+# Store each secret (repeat for all config values)
+aws secretsmanager create-secret \
+    --name salescoach/database-url \
+    --secret-string "postgresql+asyncpg://user:pass@rds-endpoint:5432/salescoach_db" \
+    --region ap-southeast-1
+
+aws secretsmanager create-secret \
+    --name salescoach/secret-key \
+    --secret-string "your-production-secret-key" \
+    --region ap-southeast-1
+
+aws secretsmanager create-secret \
+    --name salescoach/cognito-pool-id \
+    --secret-string "ap-southeast-1_XXXXXXXXX" \
+    --region ap-southeast-1
+
+# Repeat for: cognito-client-id, bedrock-guardrail-id, s3-bucket,
+#              sns-topic-arn, kms-key-id, redis-url
+```
+
+#### Step 4: Create ECS Cluster & Service
+
+```bash
+# Create cluster
+aws ecs create-cluster \
+    --cluster-name salescoach-cluster \
+    --capacity-providers FARGATE \
+    --region ap-southeast-1
+
+# Register task definition
+# (Edit ecs-task-definition.json — replace <ACCOUNT_ID> with your AWS account ID)
+aws ecs register-task-definition \
+    --cli-input-json file://ecs-task-definition.json \
+    --region ap-southeast-1
+
+# Create service with ALB
+aws ecs create-service \
+    --cluster salescoach-cluster \
+    --service-name salescoach-service \
+    --task-definition salescoach-ai \
+    --desired-count 1 \
+    --launch-type FARGATE \
+    --network-configuration "awsvpcConfiguration={subnets=[subnet-xxx],securityGroups=[sg-xxx],assignPublicIp=ENABLED}" \
+    --region ap-southeast-1
+```
+
+#### Step 5: Access Your App
+
+After the ECS service starts, you can access via:
+- **Public IP** of the Fargate task (if `assignPublicIp=ENABLED`)
+- **ALB DNS** if you configured a load balancer (recommended)
+
+---
+
+### Docker Image Details
+
+| Property | Value |
+|---|---|
+| **Base Image** | `python:3.11-slim` |
+| **Build** | Multi-stage (builder + production) |
+| **User** | Non-root `appuser` (security) |
+| **Port** | 8000 |
+| **Health Check** | `curl http://localhost:8000/docs` every 30s |
+| **Workers** | 2 Uvicorn workers |
+| **Image Size** | ~250 MB |
+
+### Files Excluded from Docker Image (via `.dockerignore`)
+
+| Excluded | Reason |
+|---|---|
+| `.env`, `.env.*` | Secrets — injected at runtime via ECS/Secrets Manager |
+| `*.db`, `*.sqlite` | Database files — RDS is used in production |
+| `__pycache__/`, `*.pyc` | Build artifacts |
+| `.git/`, `.vscode/` | Dev tooling |
+| `test_*.py`, `fix_*.py` | Dev scripts |
+| `local_storage/` | Mock AWS data |
 
 ---
 
@@ -200,7 +269,7 @@ docker push <account>.dkr.ecr.ap-southeast-1.amazonaws.com/salescoach-ai:latest
 | `dsps.csv` | 40 | Field sales representatives |
 | `merchants.csv` | 200 | Business owners (sari-sari stores, pharmacies) |
 | `outlets.csv` | 708 | Store locations with GPS coordinates |
-| `assignments.csv` | 708 | DSP ↔ Outlet mappings |
+| `assignments.csv` | 708 | DSP-Outlet mappings |
 | `outlet_scores.csv` | 708 | AI priority scores & risk factors |
 | `transactions.csv` | 50,000 | 90 days of GCash transactions (PHP) |
 | `visit_logs.csv` | 16,840 | DSP field visit records |
@@ -214,12 +283,14 @@ See [`data/data_dictionary.yaml`](data/data_dictionary.yaml) for full schema doc
 
 ## Security
 
-- All secrets stored in **AWS Secrets Manager** (not in code)
+- **No secrets in code** — all credentials via Secrets Manager or `.env` (gitignored)
 - PII encrypted with **AWS KMS**
 - Auth via **Amazon Cognito** (JWKS token verification)
-- **Bedrock Guardrails** prevent cross-tenant data leakage in LLM output
+- **Bedrock Guardrails** prevent data leakage in LLM output
 - Row-Level Security (RLS) on PostgreSQL
-- `.env` file is in `.gitignore` — never committed
+- Docker runs as **non-root user**
+- `.dockerignore` excludes `.env`, credentials, and dev files from image
+- ECR **image scanning** enabled on push
 
 ---
 
