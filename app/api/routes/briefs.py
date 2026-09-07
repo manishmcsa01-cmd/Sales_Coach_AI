@@ -12,42 +12,76 @@ from datetime import datetime
 
 router = APIRouter()
 
+from app.models.area import Area
+from app.models.dsp import Dsp
+
 @router.get("/summary/area", response_model=AreaSummaryResponse,
             dependencies=[Depends(require_role(["manager", "admin", "dsp"]))])
 async def get_area_summary(user: UserClaims = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    """Get area-level summary stats from real database."""
-    # Count outlets by status
-    total_q = await db.execute(select(func.count(Outlet.id)))
-    total = total_q.scalar() or 0
+    """Get area-level summary stats from real database with role-based scoping."""
+    area_id = user.area_id
+    area_name = "All Areas"
+    
+    if (user.role or "").lower() == "manager":
+        # Resolve manager's area
+        if not area_id:
+            email = user.email or "manager@salescoach.com"
+            manager_dsp = await db.scalar(select(Dsp).where(Dsp.email == email))
+            if manager_dsp and manager_dsp.area_id:
+                area_id = manager_dsp.area_id
+            else:
+                mgr = await db.scalar(select(Dsp).where(Dsp.role == "manager"))
+                if mgr and mgr.area_id:
+                    area_id = mgr.area_id
+                else:
+                    area_id = await db.scalar(select(Area.id).limit(1))
+        
+        if area_id:
+            a_obj = await db.scalar(select(Area).where(Area.id == area_id))
+            if a_obj:
+                area_name = a_obj.area_name
 
-    active_q = await db.execute(select(func.count(Outlet.id)).where(Outlet.status == "active"))
-    active = active_q.scalar() or 0
+    # Queries
+    total_q = select(func.count(Outlet.id))
+    active_q = select(func.count(Outlet.id)).where(Outlet.status == "active")
+    churned_q = select(func.count(Outlet.id)).where(Outlet.status == "churned")
+    inactive_q = select(func.count(Outlet.id)).where(Outlet.status.in_(["inactive", "at_risk"]))
+    avg_q = select(func.avg(OutletScore.priority_score)).select_from(Outlet).outerjoin(OutletScore, Outlet.id == OutletScore.outlet_id)
 
-    churned_q = await db.execute(select(func.count(Outlet.id)).where(Outlet.status == "churned"))
-    churned = churned_q.scalar() or 0
+    if area_id and (user.role or "").lower() == "manager":
+        total_q = total_q.where(Outlet.area_id == area_id)
+        active_q = active_q.where(Outlet.area_id == area_id)
+        churned_q = churned_q.where(Outlet.area_id == area_id)
+        inactive_q = inactive_q.where(Outlet.area_id == area_id)
+        avg_q = avg_q.where(Outlet.area_id == area_id)
 
-    inactive_q = await db.execute(select(func.count(Outlet.id)).where(Outlet.status == "inactive"))
-    inactive = inactive_q.scalar() or 0
+    total = (await db.execute(total_q)).scalar() or 0
+    active = (await db.execute(active_q)).scalar() or 0
+    churned = (await db.execute(churned_q)).scalar() or 0
+    inactive = (await db.execute(inactive_q)).scalar() or 0
+    avg_score = (await db.execute(avg_q)).scalar() or 0.0
 
-    # Average score
-    avg_q = await db.execute(select(func.avg(OutletScore.priority_score)))
-    avg_score = avg_q.scalar() or 0
-
-    # Top issues (most common contributing factors)
     at_risk = churned + inactive
 
+    # Build rich key issues list
+    top_issues = []
+    if churned > 0:
+        top_issues.append(f"{churned} churned outlets requiring retention follow-up")
+    if inactive > 0:
+        top_issues.append(f"{inactive} at-risk / inactive outlets needing immediate field visit")
+    top_issues.append(f"Average territory priority score: {round(float(avg_score), 1)} / 100")
+    top_issues.append("Monitor QR acceptance and transaction velocity for high-scoring merchants")
+    top_issues.append("Ensure Scan-to-Pay collaterals and standees are visibly placed at counters")
+
     return AreaSummaryResponse(
-        area_name="All Areas",
+        area_name=area_name,
         total_outlets=total,
         active_count=active,
         at_risk_count=at_risk,
         avg_score=round(float(avg_score), 1),
-        top_issues=[
-            f"{churned} churned outlets",
-            f"{inactive} inactive outlets",
-            f"Average priority score: {round(float(avg_score), 1)}"
-        ]
+        top_issues=top_issues
     )
+
 
 @router.get("/{outlet_id}", response_model=BriefResponse)
 async def get_brief(outlet_id: str, user: UserClaims = Depends(get_current_user), db: AsyncSession = Depends(get_db)):

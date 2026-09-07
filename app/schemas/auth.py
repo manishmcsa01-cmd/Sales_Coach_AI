@@ -12,7 +12,9 @@ class LoginResponse(BaseModel):
 
 class UserClaims(BaseModel):
     user_id: str
+    email: Optional[str] = None
     dsp_id: Optional[str] = None
     role: str
     area_id: Optional[str] = None
     manager_id: Optional[str] = None
+

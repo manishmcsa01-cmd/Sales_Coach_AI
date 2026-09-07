@@ -75,11 +75,13 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         
         return UserClaims(
             user_id=user_id,
+            email=email,
             role=role,
             dsp_id=dsp_id,
             area_id=area_id,
             manager_id=manager_id
         )
+
     except JWTError as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
     except Exception as e:

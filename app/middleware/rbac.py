@@ -1,13 +1,14 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from typing import List
-from app.middleware.tenant import get_tenant
+from app.api.dependencies import get_current_user
+from app.schemas.auth import UserClaims
 
 def require_role(roles: List[str]):
-    def role_checker():
-        tenant = get_tenant()
-        if not tenant:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-        if tenant.role not in roles:
-            raise HTTPException(status_code=403, detail="Forbidden: Insufficient role")
-        return tenant
+    def role_checker(user: UserClaims = Depends(get_current_user)):
+        user_role = (user.role or "").lower()
+        allowed = [r.lower() for r in roles]
+        if user_role not in allowed:
+            raise HTTPException(status_code=403, detail=f"Forbidden: Insufficient role '{user_role}'")
+        return user
     return role_checker
+
