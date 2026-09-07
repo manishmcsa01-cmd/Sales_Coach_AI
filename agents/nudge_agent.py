@@ -8,18 +8,21 @@ from app.aws.xray_helpers import trace
 def nudge_node(state: AgentState) -> AgentState:
     ranked = state.get("ranked_outlets", [])
     settings = get_settings()
-    
-    system_prompt = "Generate a nudge/reminder based on the provided ranked outlets data."
-    
-    response = bedrock_client.invoke_model(
-        model_id=settings.bedrock_model_id,
-        system_prompt=system_prompt,
-        user_message=json.dumps(ranked)
-    )
-    
     if "metadata" not in state:
         state["metadata"] = {}
-    
-    state["metadata"]["nudges"] = [response]
+        
+    top_name = ranked[0].get("name") if ranked else "high-priority outlets"
+
+    try:
+        system_prompt = "Generate a short 1-sentence sales coaching nudge/reminder based on the provided ranked outlets data."
+        response = bedrock_client.invoke_model(
+            model_id=settings.bedrock_model_id,
+            system_prompt=system_prompt,
+            user_message=json.dumps(ranked[:3])
+        )
+        state["metadata"]["nudges"] = [response.strip()]
+    except Exception:
+        state["metadata"]["nudges"] = [f"💡 Tip: Plan an early morning visit to {top_name} to secure merchant commitment before peak hours!"]
         
     return state
+

@@ -52,14 +52,28 @@ def build_sales_coach_graph():
     
     return graph.compile()
 
-async def run_agent(query: str, tenant_context) -> AgentState:
+async def run_agent(
+    query: str,
+    tenant_context=None,
+    user_id: str = None,
+    dsp_id: str = None,
+    role: str = "DSP",
+    area_id: str = None,
+    conversation_history: list = None
+) -> AgentState:
     graph = build_sales_coach_graph()
+    
+    uid = getattr(tenant_context, "user_id", user_id) or user_id or ""
+    did = getattr(tenant_context, "dsp_id", dsp_id) or dsp_id or ""
+    r = getattr(tenant_context, "role", role) or role or "DSP"
+    aid = getattr(tenant_context, "area_id", area_id) or area_id
+    
     initial_state = AgentState(
         user_query=query,
-        user_id=tenant_context.user_id,
-        dsp_id=tenant_context.dsp_id,
-        role=tenant_context.role,
-        area_id=tenant_context.area_id,
+        user_id=uid,
+        dsp_id=did,
+        role=r,
+        area_id=aid,
         intent=None,
         outlet_id=None,
         outlet_data=None,
@@ -67,10 +81,11 @@ async def run_agent(query: str, tenant_context) -> AgentState:
         recommendation=None,
         brief=None,
         response=None,
-        conversation_history=[],
+        conversation_history=conversation_history or [],
         error=None,
         next_agent=None,
         metadata={"chain": []}
     )
     result = await graph.ainvoke(initial_state)
     return result
+
