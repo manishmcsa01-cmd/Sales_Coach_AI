@@ -39,12 +39,12 @@ class Settings(BaseSettings):
         description="AWS region",
     )
     aws_access_key_id: str = Field(
-        ...,
-        description="AWS Access Key ID",
+        default="",
+        description="AWS Access Key ID (uses ECS task role when empty)",
     )
     aws_secret_access_key: str = Field(
-        ...,
-        description="AWS Secret Access Key",
+        default="",
+        description="AWS Secret Access Key (uses ECS task role when empty)",
     )
 
     # Amazon Bedrock (GenAI & Guardrails)
@@ -83,8 +83,8 @@ class Settings(BaseSettings):
 
     # Machine Learning Inference
     sagemaker_endpoint_name: str = Field(
-        ...,
-        description="Amazon SageMaker endpoint name",
+        default="",
+        description="Amazon SageMaker endpoint name (optional)",
     )
 
     # Messaging & Search
@@ -93,8 +93,8 @@ class Settings(BaseSettings):
         description="Amazon SNS topic ARN",
     )
     opensearch_endpoint: str = Field(
-        ...,
-        description="Amazon OpenSearch endpoint",
+        default="",
+        description="Amazon OpenSearch endpoint (optional)",
     )
 
     # Security & Encryption
