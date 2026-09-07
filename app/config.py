@@ -126,6 +126,11 @@ class Settings(BaseSettings):
         """Check if application is running in staging environment."""
         return self.app_env == "staging"
 
+    @property
+    def cognito_app_client_id(self) -> str:
+        """Alias for cognito_client_id."""
+        return self.cognito_client_id
+
 
 @lru_cache()
 def get_settings() -> Settings:

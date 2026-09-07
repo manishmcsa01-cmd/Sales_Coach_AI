@@ -194,7 +194,23 @@ async def seed_data_if_empty():
             )
             session.add_all([s1, s2, s3, s4, s5])
 
-            # 6. Transactions
+            # 5. DSP Outlet Assignments
+            from app.models.assignment import DspOutletAssignment
+            as1 = DspOutletAssignment(id=uuid.uuid4(), dsp_id=dsp1.id, outlet_id=o1.id, assigned_date=date.today())
+            as2 = DspOutletAssignment(id=uuid.uuid4(), dsp_id=dsp1.id, outlet_id=o2.id, assigned_date=date.today())
+            as3 = DspOutletAssignment(id=uuid.uuid4(), dsp_id=dsp2.id, outlet_id=o3.id, assigned_date=date.today())
+            as4 = DspOutletAssignment(id=uuid.uuid4(), dsp_id=dsp2.id, outlet_id=o4.id, assigned_date=date.today())
+            as5 = DspOutletAssignment(id=uuid.uuid4(), dsp_id=dsp3.id, outlet_id=o5.id, assigned_date=date.today())
+            session.add_all([as1, as2, as3, as4, as5])
+
+            # 6. Action Recommendations
+            from app.models.action import ActionRecommendation
+            act1 = ActionRecommendation(id=uuid.uuid4(), outlet_id=o1.id, dsp_id=dsp1.id, action_type="Merchandising Audit", action_detail="Replace damaged GCash QR tent cards and stickers", priority="HIGH", status="pending")
+            act2 = ActionRecommendation(id=uuid.uuid4(), outlet_id=o3.id, dsp_id=dsp2.id, action_type="Cash-In Training", action_detail="Train store clerk on Cash-In limit updates", priority="CRITICAL", status="pending")
+            act3 = ActionRecommendation(id=uuid.uuid4(), outlet_id=o2.id, dsp_id=dsp1.id, action_type="POS Health Check", action_detail="Diagnose barcode scanner connectivity errors", priority="MEDIUM", status="completed")
+            session.add_all([act1, act2, act3])
+
+            # 7. Transactions
             now = datetime.utcnow()
             t1 = Transaction(id=uuid.uuid4(), outlet_id=o1.id, txn_type="QR_PAYMENT", amount=1500.0, txn_date=now, status="SUCCESS")
             t2 = Transaction(id=uuid.uuid4(), outlet_id=o2.id, txn_type="CASH_IN", amount=500.0, txn_date=now, status="SUCCESS")
@@ -203,15 +219,15 @@ async def seed_data_if_empty():
             t5 = Transaction(id=uuid.uuid4(), outlet_id=o5.id, txn_type="QR_PAYMENT", amount=890.0, txn_date=now, status="SUCCESS")
             session.add_all([t1, t2, t3, t4, t5])
 
-            # 7. Visits
+            # 8. Visits
             v1 = VisitLog(id=uuid.uuid4(), dsp_id=dsp1.id, outlet_id=o1.id, visit_date=now, visit_type="SCHEDULED", outcome="COMPLETED", notes="Marketing collaterals replaced", duration_minutes=25)
             v2 = VisitLog(id=uuid.uuid4(), dsp_id=dsp2.id, outlet_id=o3.id, visit_date=now, visit_type="AD_HOC", outcome="COMPLETED", notes="Assisted with QR scanner issue", duration_minutes=15)
             session.add_all([v1, v2])
 
-            # 8. User Accounts
+            # 9. User Accounts
             u1 = UserAccount(id=uuid.uuid4(), email="admin@salescoach.com", password_hash="managed_by_cognito", role="admin", status="active", last_login=now)
-            u2 = UserAccount(id=uuid.uuid4(), email="manager@test.com", password_hash="managed_by_cognito", role="manager", status="active", last_login=now)
-            u3 = UserAccount(id=uuid.uuid4(), email="dsp@test.com", password_hash="managed_by_cognito", role="dsp", status="active", last_login=now)
+            u2 = UserAccount(id=uuid.uuid4(), email="manager@salescoach.com", password_hash="managed_by_cognito", role="manager", status="active", last_login=now)
+            u3 = UserAccount(id=uuid.uuid4(), email="dsp@salescoach.com", password_hash="managed_by_cognito", role="dsp", status="active", last_login=now)
             session.add_all([u1, u2, u3])
 
             await session.commit()
