@@ -27,6 +27,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
 
     token = credentials.credentials
     settings = get_settings()
+    client_id = getattr(settings, "cognito_client_id", None) or getattr(settings, "cognito_app_client_id", "")
     
     try:
         # Get unverified header to find the kid
@@ -52,13 +53,22 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
             token,
             rsa_key,
             algorithms=["RS256"],
-            audience=settings.cognito_app_client_id,
+            audience=client_id,
             issuer=f"https://cognito-idp.{settings.aws_region}.amazonaws.com/{settings.cognito_user_pool_id}"
         )
         
-        # Extract user claims
+        # Extract user claims with safe fallbacks
         user_id = payload.get("sub")
+        email = payload.get("email", "") or payload.get("cognito:username", "")
         role = payload.get("custom:role") or (payload.get("cognito:groups", [None])[0])
+        if not role:
+            if "admin" in email.lower():
+                role = "admin"
+            elif "manager" in email.lower():
+                role = "manager"
+            else:
+                role = "dsp"
+
         dsp_id = payload.get("custom:dsp_id")
         area_id = payload.get("custom:area_id")
         manager_id = payload.get("custom:manager_id")
