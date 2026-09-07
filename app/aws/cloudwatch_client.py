@@ -53,3 +53,16 @@ class CloudWatchClient:
             self._sequence_tokens[token_key] = e.response['expectedSequenceToken']
 
 cloudwatch_client = CloudWatchClient()
+
+
+def log_audit_event(event_data: dict):
+    """Log an audit event to CloudWatch Logs."""
+    import json
+    try:
+        cloudwatch_client.put_log_event(
+            log_group=settings.cloudwatch_log_group,
+            log_stream="audit-events",
+            message=json.dumps(event_data)
+        )
+    except Exception:
+        pass  # Don't fail the request if audit logging fails
