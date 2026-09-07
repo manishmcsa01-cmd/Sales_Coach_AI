@@ -38,7 +38,7 @@
             var role = localStorage.getItem('user_role');
             var el = document.getElementById('user-info');
             if (el && name) {
-                var emoji = role === 'admin' ? '👑' : role === 'manager' ? '📊' : '🏪';
+                var emoji = role === 'admin' ? '👑' : role === 'manager' ? '📊' : '🛵';
                 el.textContent = emoji + ' ' + name + ' (' + role + ')';
             }
 
@@ -50,13 +50,17 @@
                 if (role === 'manager') {
                     html += '<a href="/dsp-performance" class="block p-2 hover:bg-gray-200 rounded">DSP Performance</a>';
                     html += '<a href="/area-summary" class="block p-2 hover:bg-gray-200 rounded">Area Summary</a>';
+                    // 'Ask' is hidden for manager
                 } else if (role === 'admin') {
                     html += '<a href="/area-summary" class="block p-2 hover:bg-gray-200 rounded">All Areas</a>';
                     html += '<a href="/admin/users" class="block p-2 hover:bg-gray-200 rounded">User Management</a>';
                     html += '<a href="/admin/health" class="block p-2 hover:bg-gray-200 rounded">System Health</a>';
+                    // 'Ask' is hidden for admin
+                } else {
+                    // Only DSP role sees the AI Coach / Ask
+                    html += '<a href="/ask" class="block p-2 hover:bg-gray-200 rounded">Ask AI Coach</a>';
                 }
                 
-                html += '<a href="/ask" class="block p-2 hover:bg-gray-200 rounded">Ask</a>';
                 sidebar.innerHTML = html;
             }
         })();
