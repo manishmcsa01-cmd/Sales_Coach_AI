@@ -9,10 +9,11 @@ router = APIRouter()
 @router.post("/login", response_model=LoginResponse)
 def login(request: LoginRequest, db = Depends(get_db)):
     settings = get_settings()
+    client_id = getattr(settings, "cognito_client_id", None) or getattr(settings, "cognito_app_client_id", "")
     try:
         response = cognito_client.client.admin_initiate_auth(
             UserPoolId=settings.cognito_user_pool_id,
-            ClientId=settings.cognito_app_client_id,
+            ClientId=client_id,
             AuthFlow='ADMIN_NO_SRP_AUTH',
             AuthParameters={
                 'USERNAME': request.email,
@@ -24,12 +25,20 @@ def login(request: LoginRequest, db = Depends(get_db)):
         if not auth_result:
             raise HTTPException(status_code=401, detail="Authentication failed")
             
-        access_token = auth_result.get('AccessToken')
         id_token = auth_result.get('IdToken')
+        
+        # Determine role from email address
+        email_lower = request.email.lower()
+        if "admin" in email_lower:
+            role = "admin"
+        elif "manager" in email_lower:
+            role = "manager"
+        else:
+            role = "dsp"
         
         return LoginResponse(
             access_token=id_token,
-            role="unknown",
+            role=role,
             user_name=request.email.split('@')[0]
         )
     except cognito_client.client.exceptions.NotAuthorizedException:
