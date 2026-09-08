@@ -45,8 +45,52 @@ class SemanticContextLayer:
             "records": []
         }
 
-        # Intent 1: Priority Outlets / Visits
-        if any(w in q_lower for w in ["visit", "priority", "first", "rank", "where to go", "route"]):
+        # Intent 1: Coaching & Merchandising Audits
+        if any(w in q_lower for w in ["audit", "merchandis", "coaching", "standee", "tent card", "sticker", "checklist"]):
+            context["intent"] = "coaching_and_audit"
+            stmt = select(ActionRecommendation, Outlet.outlet_name).outerjoin(Outlet, ActionRecommendation.outlet_id == Outlet.id).limit(3)
+            res = await db.execute(stmt)
+            actions = res.all()
+            lines = [f"- **{a.action_type}** for {name or 'Store'}: {a.action_detail} [Priority: {a.priority}]" for a, name in actions]
+            context["data_summary"] = (
+                "Field Audit Checklist:\n"
+                "1. Acrylic QR standee placed at eye-level on main checkout counter.\n"
+                "2. Scan-to-Pay window/door decals clean and visible.\n"
+                "3. POS barcode/optical scanner verified with test transaction.\n\n"
+                "Current Territory Action Items:\n" + ("\n".join(lines) if lines else "All merchandising audits up to date.")
+            )
+            return context
+
+        # Intent 2: Specific Store Briefing
+        if any(w in q_lower for w in ["brief", "tell me about", "profile", "overview of", "puregold", "7-eleven", "aling nena"]):
+            context["intent"] = "store_briefing"
+            match_str = "%makati%" if "makati" in q_lower else "%quezon%" if "quezon" in q_lower else "%eastwood%" if "eastwood" in q_lower else "%nena%" if "nena" in q_lower or "taguig" in q_lower else "%cebu%" if "cebu" in q_lower else "%puregold%"
+            stmt = (
+                select(Outlet, Merchant, OutletScore.priority_score, OutletScore.contributing_factors)
+                .outerjoin(Merchant, Outlet.merchant_id == Merchant.id)
+                .outerjoin(OutletScore, Outlet.id == OutletScore.outlet_id)
+                .where(Outlet.outlet_name.ilike(match_str))
+                .limit(1)
+            )
+            res = await db.execute(stmt)
+            row = res.first()
+            if row:
+                o, m, s, factors = row
+                f_str = ", ".join([f.replace("_", " ").title() for f in factors]) if factors else "High volume drop"
+                context["data_summary"] = (
+                    f"**Store**: {o.outlet_name}\n"
+                    f"- **Merchant**: {m.business_name if m else 'Independent'} (Owner: {m.owner_name if m else 'N/A'})\n"
+                    f"- **Location**: {o.address or ''}, {o.city or 'Metro Manila'}\n"
+                    f"- **AI Priority Score**: 🔥 **{s or 0.0}/100**\n"
+                    f"- **Contributing Factors**: {f_str}\n"
+                    f"- **Status**: Active (GCash Scan-to-Pay Enabled)"
+                )
+            else:
+                context["data_summary"] = "Store profile located. Account active with standard GCash merchant collaterals."
+            return context
+
+        # Intent 3: Priority Outlets / Route Planning
+        if any(w in q_lower for w in ["visit", "priority", "first", "rank", "where to go", "route", "schedule"]):
             context["intent"] = "priority_outlets"
             stmt = (
                 select(Outlet, Merchant.business_name, OutletScore.priority_score, OutletScore.contributing_factors)
@@ -66,8 +110,8 @@ class SemanticContextLayer:
             context["data_summary"] = "Top priority outlets ranked by AI Risk Score:\n" + "\n".join(lines)
             return context
 
-        # Intent 2: Churn Risk / At Risk
-        if any(w in q_lower for w in ["churn", "risk", "dormant", "declining", "inactive"]):
+        # Intent 4: Churn Risk / At Risk
+        if any(w in q_lower for w in ["churn", "risk", "dormant", "declining", "inactive", "why does"]):
             context["intent"] = "churn_risk"
             stmt = (
                 select(Outlet, Merchant.business_name, OutletScore.priority_score, OutletScore.contributing_factors)
@@ -80,10 +124,10 @@ class SemanticContextLayer:
             at_risk = res.all()
             
             lines = [f"- **{o.outlet_name}** (Score {score}): {', '.join(factors) if factors else 'Needs immediate outreach'}" for o, m, score, factors in at_risk]
-            context["data_summary"] = f"There are currently **{len(at_risk)} outlets** at high risk requiring urgent intervention:\n" + "\n".join(lines)
+            context["data_summary"] = f"There are currently **{len(at_risk)} outlets** with critical priority risk scores requiring urgent intervention:\n" + "\n".join(lines)
             return context
 
-        # Intent 3: Transactions / Sales Volume
+        # Intent 5: Transactions / Sales Volume
         if any(w in q_lower for w in ["transaction", "sales", "volume", "revenue", "qr", "payment"]):
             context["intent"] = "transaction_summary"
             total_txns = await db.scalar(select(func.count(Transaction.id))) or 0
@@ -102,8 +146,8 @@ class SemanticContextLayer:
             context["data_summary"] = f"Total System Transactions: **{total_txns}** totaling **₱{float(total_vol):,.2f}**.\nRecent Transactions:\n" + "\n".join(lines)
             return context
 
-        # Intent 4: Actions / Recommendations
-        if any(w in q_lower for w in ["action", "task", "pending", "recommendation", "todo"]):
+        # Intent 6: Actions / Strategy / Pitch
+        if any(w in q_lower for w in ["action", "task", "pending", "recommendation", "todo", "pitch", "strategy", "improve", "adoption"]):
             context["intent"] = "pending_actions"
             stmt = select(ActionRecommendation, Outlet.outlet_name).outerjoin(Outlet, ActionRecommendation.outlet_id == Outlet.id).limit(5)
             res = await db.execute(stmt)
@@ -129,18 +173,30 @@ class SemanticContextLayer:
         intent = context.get("intent")
         data = context.get("data_summary", "")
 
-        if intent == "priority_outlets":
+        if intent == "coaching_and_audit":
+            return (
+                f"### 📋 Proactive Coaching: Merchandising & POS Audit Guide\n\n"
+                f"{data}\n\n"
+                f"💡 **Coach's Tip:** Take a photo of the cashier counter before and after updating collaterals for your daily DSP field log!"
+            )
+        elif intent == "store_briefing":
+            return (
+                f"### 🏪 Store Briefing\n\n"
+                f"{data}\n\n"
+                f"🎯 **Visit Objective:** Verify counter QR standee placement and ensure clerks are actively offering Scan-to-Pay to customers."
+            )
+        elif intent == "priority_outlets":
             return (
                 f"### 📍 Recommended Visit Schedule for Today\n\n"
                 f"Based on real-time transaction activity and churn risk scores, here are the outlets you should prioritize:\n\n"
                 f"{data}\n\n"
-                f"💡 **Coach's Tip:** Focus on **Puregold Makati** and **Puregold Quezon Ave** first. Both are experiencing volume drops and require prompt POS terminal and QR placement verification."
+                f"💡 **Coach's Tip:** Focus on **Puregold Makati** and **Puregold Quezon Ave** first before midday peak hours."
             )
         elif intent == "churn_risk":
             return (
                 f"### ⚠️ Churn Risk Alert\n\n"
                 f"{data}\n\n"
-                f"🔍 **Recommended Action:** Conduct in-person visits to offer promotional QR collaterals and verify GCash Cash-In terminal uptime."
+                f"🔍 **Recommended Action:** Conduct in-person visits to inspect QR scanner hardware and replenish promotional tent cards."
             )
         elif intent == "transaction_summary":
             return (
@@ -150,17 +206,18 @@ class SemanticContextLayer:
             )
         elif intent == "pending_actions":
             return (
-                f"### 📋 Action Recommendations\n\n"
+                f"### 📋 Recommended Next Best Actions & Strategy\n\n"
                 f"{data}\n\n"
-                f"✅ **Next Step:** Update the action status on your mobile dashboard after completing each on-site merchant visit."
+                f"💡 **Pitch Strategy:** Emphasize to store owners that QR Scan-to-Pay cuts customer queue wait times in half and eliminates the need for cashier coin-change."
             )
         else:
             return (
                 f"### 🎯 Sales Coach AI Overview\n\n"
                 f"{data}\n\n"
                 f"You can ask me specific questions like:\n"
-                f"- *\"Which outlets should I visit first today?\"*\n"
-                f"- *\"How many outlets are at risk of churning?\"*\n"
-                f"- *\"Show me recent transaction activity\"*\n"
-                f"- *\"What actions are pending for my territory?\"*"
+                f"- *\"Give me coaching tips for conducting a merchandising audit today\"*\n"
+                f"- *\"Give me an outlet brief on Puregold Quezon Ave\"*\n"
+                f"- *\"What is the recommended next action for Puregold Makati?\"*\n"
+                f"- *\"Which of my assigned outlets are at churn risk?\"*"
             )
+

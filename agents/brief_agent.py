@@ -10,13 +10,24 @@ def brief_node(state: AgentState) -> AgentState:
     settings = get_settings()
     
     profile = outlet_data.get("profile", {}) if outlet_data else {}
-    name = profile.get("name", "Target Outlet")
+    name = profile.get("name", "Target Store")
+    merchant = profile.get("merchant", "Independent Merchant")
+    owner = profile.get("owner", "Store Manager")
+    kyc = profile.get("kyc_status", "verified").capitalize()
+    risk = profile.get("risk_tier", "low").upper()
     city = profile.get("city", "Metro Manila")
-    status = profile.get("status", "Active")
+    address = profile.get("address", "")
     score = outlet_data.get("score", 0.0) if outlet_data else 0.0
+    factors = outlet_data.get("factors", [])
+    factors_fmt = ", ".join([f.replace("_", " ").title() for f in factors]) if factors else "High volume potential"
+    txns = outlet_data.get("recent_transactions", [])
+    actions = outlet_data.get("pending_actions", [])
 
     try:
-        system_prompt = "Generate a concise sales brief based on the outlet data (profile and transactions). Include overview, performance, risks, actions."
+        system_prompt = (
+            "You are Sales Coach AI. Generate an executive store briefing based on the outlet, merchant profile, and transaction history. "
+            "Highlight merchant background, priority score, risk factors, and clear visit objectives."
+        )
         response = bedrock_client.invoke_model(
             model_id=settings.bedrock_model_id,
             system_prompt=system_prompt,
@@ -28,16 +39,32 @@ def brief_node(state: AgentState) -> AgentState:
                 response = gr_res.get("filtered_text", response)
             except Exception:
                 pass
-        state["brief"] = response
+        if response and len(response.strip()) > 20:
+            state["brief"] = response.strip()
+            return state
     except Exception:
-        state["brief"] = (
-            f"### Outlet Brief: {name}\n"
-            f"- **Location**: {city}\n"
-            f"- **Account Status**: {status.capitalize()}\n"
-            f"- **Priority Score**: {score:.1f}/100\n"
-            f"- **Performance Trend**: Moderate foot traffic with opportunity to expand GCash QR acceptance.\n"
-            f"- **Key Objective**: Ensure QR standee is positioned prominently at checkout counter and train store clerks on fast QR scanning."
-        )
-    
+        pass
+
+    # High-quality structured fallback
+    lines = [
+        f"### 🏪 Store Briefing: {name}",
+        f"- **Merchant Network**: {merchant} *(Owner: {owner} | KYC: {kyc} | Risk Tier: {risk})*",
+        f"- **Location**: {address or city}",
+        f"- **Priority AI Score**: **{score:.1f} / 100**",
+        f"- **Key Contributing Factors**: {factors_fmt}",
+    ]
+
+    if txns:
+        tx_str = ", ".join([f"₱{t['amount']:,.2f} ({t['type']})" for t in txns[:2]])
+        lines.append(f"- **Recent Transactions**: {tx_str}")
+
+    if actions:
+        act_str = "; ".join([f"{a['type']} ({a['detail']})" for a in actions[:2]])
+        lines.append(f"- **Pending Recommended Actions**: {act_str}")
+
+    lines.append(f"- **Field Objective**: Position Scan-to-Pay QR standees at primary checkout counters and ensure cashier familiarity with QR refunds.")
+
+    state["brief"] = "\n".join(lines)
     return state
+
 
