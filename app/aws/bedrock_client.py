@@ -10,10 +10,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 class BedrockClient:
-    # Supported Claude models in order of priority
+    # Supported Claude models in order of priority (including Sonnet 3.5 v1, v2, and cross-region APAC)
     FALLBACK_MODELS = [
         "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "anthropic.claude-3-5-sonnet-20241022-v2:0",
         "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
         "anthropic.claude-3-sonnet-20240229-v1:0",
         "anthropic.claude-3-haiku-20240307-v1:0",
     ]
