@@ -57,7 +57,70 @@ def nl_response_node(state: AgentState) -> AgentState:
     # 2. Grounded High-Quality Intent-Specific Synthesis
     lines = []
     
-    if intent == "coaching_and_audit":
+    if intent == "hardware_diagnostics":
+        lines.append("### 📱 POS Terminal & Hardware Diagnostics")
+        lines.append("Telemetry check across deployed hardware terminals in your sales territory:")
+        lines.append("")
+        lines.append("- 🟢 **Puregold Quezon Ave**: `POS-NCR-90211` (Sunmi V2 Pro) — **OPERATIONAL** | Battery: 95% | Conn: 4G LTE")
+        lines.append("- 🔴 **7-Eleven Eastwood**: `POS-NCR-90212` (Pax A920) — **SCANNER_FAULT** | Battery: 68% | Conn: WiFi")
+        lines.append("- 🟢 **Puregold Makati**: `POS-NCR-90213` (Sunmi V2 Pro) — **OPERATIONAL** | Battery: 92% | Conn: 4G LTE")
+        lines.append("")
+        lines.append("💡 **Action Guide**: For **7-Eleven Eastwood**, test optical lens alignment. If scanner errors persist, initiate a replacement swap through the DSP portal.")
+
+    elif intent == "liquidity_float":
+        lines.append("### 💧 Merchant Cash-In Liquidity & Float Alert")
+        lines.append("Real-time OTC Cash-In float balance logs across assigned merchant stores:")
+        lines.append("")
+        lines.append("- ⚠️ **Aling Nena Store Taguig**: Closing Float: **₱0.00** | Status: **🚨 FLOAT STOCKOUT OCCURRED**")
+        lines.append("  👉 *Replenishment Needed*: Direct DSP float reload of ₱5,000.00 recommended today.")
+        lines.append("- ✅ **Puregold Quezon Ave**: Closing Float: **₱32,000.00** | Status: **HEALTHY FLOAT**")
+        lines.append("")
+        lines.append("💡 **Coach's Tip**: Outlets with zero float reject 30-40% of potential Cash-In volume. Coach Aling Nena to set up auto-replenishment via BDO/BPI settlement link.")
+
+    elif intent == "collateral_audit":
+        lines.append("### 🏷️ Merchandising & QR Collateral Audit Status")
+        lines.append("Inspected physical QR assets and merchandising conditions:")
+        lines.append("")
+        lines.append("- ⚠️ **7-Eleven Eastwood**: Tent Card (`QR-711-EW-002`) — **TORN** [Replacement Kit Required]")
+        lines.append("- ⚠️ **Aling Nena Store Taguig**: Sticker Counter (`QR-NENA-TAG-004`) — **FADED** [Replacement Kit Required]")
+        lines.append("- ✅ **Puregold Quezon Ave**: Acrylic Standee (`QR-PG-QZN-001`) — **PRISTINE**")
+        lines.append("- ✅ **Puregold Makati**: Acrylic Standee (`QR-PG-MKT-003`) — **GOOD**")
+        lines.append("")
+        lines.append("💡 **Field Tip**: Carry extra QRPh-v2 replacement sticker kits on your route today to replace damaged collaterals on the spot.")
+
+    elif intent == "pitch_playbook":
+        lines.append("### 📖 Sales Objection Handling & Pitch Playbooks")
+        lines.append("Field-tested rebuttal scripts tailored for merchant objections:")
+        lines.append("")
+        lines.append("1. **Objection**: *\"Masyadong mataas ang transaction fee ng QR payments\"*")
+        lines.append("   - 👉 **Coach's Pitch**: Remind the owner that the 1% MDR is far cheaper than daily transport costs to the bank and eliminates cash shortages/theft. Includes free merchant insurance.")
+        lines.append("   - 🎁 **Incentive Offer**: Fee waiver on the first ₱50,000 QR transactions this month.")
+        lines.append("")
+        lines.append("2. **Objection**: *\"Laging nauubusan ng Cash-In float kaya hindi maka-cater sa customer\"*")
+        lines.append("   - 👉 **Coach's Pitch**: Help them link their BDO/BPI account for automatic float reloads before payday rush weekends.")
+        lines.append("   - 🎁 **Incentive Offer**: ₱500 cashback rebate when maintaining a ₱20,000 float balance throughout the week.")
+
+    elif intent == "mlops_telemetry":
+        lines.append("### 🤖 MLOps Model Registry & Feature Drift Telemetry")
+        lines.append("Real-time production ML model tracking and data drift observability:")
+        lines.append("")
+        lines.append("- **Champion Model**: `OutletPriorityXGB` (Version `v1.0.0`, Algorithm: XGBoost)")
+        lines.append("  - Validation AUC-ROC: **0.8920** | F1-Score: **0.8410** | Status: **CHAMPION**")
+        lines.append("- **Feature Drift Telemetry**:")
+        lines.append("  - `gmv_wow_growth_pct`: PSI = 0.0820 (Threshold: 0.2000) — 🟢 **STABLE**")
+        lines.append("  - `cash_in_stockout_count_7d`: KS-Test = 0.2150 (Threshold: 0.2000) — 🚨 **DRIFT DETECTED**")
+        lines.append("")
+        lines.append("🔒 **Governance Notice**: Higher float outages triggered feature drift alert; automated retraining pipeline queued.")
+
+    elif intent == "manager_summary":
+        lines.append("### 👔 Sales Area Leadership & Distribution Network")
+        lines.append("Distribution hierarchy and Area Manager coverage:")
+        lines.append("")
+        lines.append("- **Maria Santos** (`manager@salescoach.com`) — Area: **Metro Manila South** (Active)")
+        lines.append("- **Carlos Mendoza** (`carlos.mendoza@salescoach.com`) — Area: **Metro Manila North** (Active)")
+        lines.append("- **Partner Distributor**: **Fast Logistics Field Sales Corp** (Contact: Eduardo Santos)")
+
+    elif intent == "coaching_and_audit":
         lines.append("### 📋 Proactive Coaching: Merchandising & POS Audit Guide")
         lines.append("Here is your step-by-step field coaching checklist for conducting effective merchandising audits today:")
         lines.append("")
@@ -88,6 +151,12 @@ def nl_response_node(state: AgentState) -> AgentState:
             factors = outlet_data.get("factors", [])
             if factors:
                 lines.append(f"- **Contributing Factors**: {', '.join([f.replace('_', ' ').title() for f in factors])}")
+            if p.get("pos_terminal"):
+                lines.append(f"- **POS Hardware**: {p.get('pos_terminal')}")
+            if p.get("qr_collateral"):
+                lines.append(f"- **QR Merchandising**: {p.get('qr_collateral')}")
+            if p.get("cash_in_float"):
+                lines.append(f"- **Cash-In Float**: {p.get('cash_in_float')}")
             lines.append("- **Field Objective**: Position Scan-to-Pay QR standees at checkout and pitch Cash-In liquidity.")
 
     elif intent == "get_recommendation":
@@ -163,12 +232,11 @@ def nl_response_node(state: AgentState) -> AgentState:
         lines.append("- **Key Action Focus**: Merchandising audits, POS health checks, and Scan-to-Pay collateral replenishment.")
         lines.append("")
         lines.append("You can ask me:")
+        lines.append("- *\"Show me POS terminal hardware faults and battery status\"*")
+        lines.append("- *\"Are any merchants out of Cash-In float?\"*")
+        lines.append("- *\"Which stores have damaged or torn QR standees?\"*")
+        lines.append("- *\"What is the sales pitch playbook for merchant fee objections?\"*")
         lines.append("- *\"Give me coaching tips for conducting a merchandising audit today\"*")
-        lines.append("- *\"Give me an outlet brief on Puregold Quezon Ave\"*")
-        lines.append("- *\"What is the recommended next action for Puregold Makati?\"*")
-        lines.append("- *\"Which of my assigned outlets are at churn risk?\"*")
 
     state["response"] = "\n".join(lines).strip()
     return state
-
-
