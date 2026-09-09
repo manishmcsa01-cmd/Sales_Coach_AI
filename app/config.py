@@ -49,7 +49,7 @@ class Settings(BaseSettings):
 
     # Amazon Bedrock (GenAI & Guardrails)
     bedrock_model_id: str = Field(
-        ...,
+        default="anthropic.claude-3-5-sonnet-20240620-v1:0",
         description="Amazon Bedrock Foundation Model ID",
     )
     bedrock_guardrail_id: str = Field(
