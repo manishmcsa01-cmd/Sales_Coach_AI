@@ -45,14 +45,6 @@ class BedrockClient:
         return self._guardrail_client
 
     def invoke_model(self, model_id: str, system_prompt: str, user_message: str, max_tokens: int = 2048) -> str:
-        payload = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_tokens,
-            "system": system_prompt,
-            "messages": [{"role": "user", "content": user_message}]
-        }
-        body_bytes = json.dumps(payload).encode('utf-8')
-
         # Try requested model first, then fallback models
         models_to_try = [model_id]
         for fb in self.FALLBACK_MODELS:
@@ -61,7 +53,42 @@ class BedrockClient:
 
         last_err = None
         for candidate_model in models_to_try:
+            # 1. Try modern Bedrock Converse API first (AWS recommended standard for Claude models)
             try:
+                converse_response = self.client.converse(
+                    modelId=candidate_model,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [{"text": user_message}]
+                        }
+                    ],
+                    system=[{"text": system_prompt}] if system_prompt else [],
+                    inferenceConfig={
+                        "maxTokens": max_tokens,
+                        "temperature": 0.3,
+                        "topP": 0.9
+                    }
+                )
+                output_msg = converse_response.get("output", {}).get("message", {})
+                content_blocks = output_msg.get("content", [])
+                text_pieces = [c.get("text", "") for c in content_blocks if "text" in c]
+                result_text = "".join(text_pieces).strip()
+                if result_text:
+                    logger.info(f"Bedrock Converse API succeeded with model: {candidate_model}")
+                    return result_text
+            except Exception as conv_err:
+                logger.debug(f"Converse API call for {candidate_model} failed ({conv_err}), attempting invoke_model...")
+
+            # 2. Fallback to InvokeModel with Anthropic Messages API
+            try:
+                payload = {
+                    "anthropic_version": "bedrock-2023-05-31",
+                    "max_tokens": max_tokens,
+                    "system": system_prompt,
+                    "messages": [{"role": "user", "content": user_message}]
+                }
+                body_bytes = json.dumps(payload).encode('utf-8')
                 response = self.client.invoke_model(
                     modelId=candidate_model,
                     body=body_bytes,
@@ -71,11 +98,11 @@ class BedrockClient:
                 response_body = json.loads(response['body'].read().decode('utf-8'))
                 text = response_body.get('content', [{}])[0].get('text', '')
                 if text:
-                    logger.info(f"Bedrock invocation succeeded with model: {candidate_model}")
+                    logger.info(f"Bedrock invoke_model succeeded with model: {candidate_model}")
                     return text
             except Exception as e:
                 last_err = e
-                logger.warning(f"Bedrock model {candidate_model} invocation failed: {e}. Trying fallback...")
+                logger.warning(f"Bedrock model {candidate_model} failed: {e}. Trying next candidate...")
 
         raise last_err or RuntimeError("All Bedrock model candidates failed")
 
