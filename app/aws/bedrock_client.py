@@ -19,8 +19,28 @@ class BedrockClient:
     ]
 
     def __init__(self):
-        self.client = boto3.client('bedrock-runtime', region_name=settings.aws_region)
-        self.guardrail_client = boto3.client('bedrock-runtime', region_name=settings.aws_region)
+        self._client = None
+        self._guardrail_client = None
+
+    @property
+    def client(self):
+        if self._client is None:
+            kwargs = {"region_name": settings.aws_region or "ap-southeast-1"}
+            if getattr(settings, "aws_access_key_id", None) and getattr(settings, "aws_secret_access_key", None):
+                kwargs["aws_access_key_id"] = settings.aws_access_key_id
+                kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+            self._client = boto3.client('bedrock-runtime', **kwargs)
+        return self._client
+
+    @property
+    def guardrail_client(self):
+        if self._guardrail_client is None:
+            kwargs = {"region_name": settings.aws_region or "ap-southeast-1"}
+            if getattr(settings, "aws_access_key_id", None) and getattr(settings, "aws_secret_access_key", None):
+                kwargs["aws_access_key_id"] = settings.aws_access_key_id
+                kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+            self._guardrail_client = boto3.client('bedrock-runtime', **kwargs)
+        return self._guardrail_client
 
     def invoke_model(self, model_id: str, system_prompt: str, user_message: str, max_tokens: int = 2048) -> str:
         payload = {

@@ -34,31 +34,33 @@ async def ask_question(
             db=db
         )
 
-        # If a specific domain intent is detected from the 35 tables, ground response with live database records
-        if context.get("intent") and context["intent"] != "general_inquiry":
-            sources.append("semantic_knowledge_layer")
-            try:
-                from app.aws.bedrock_client import bedrock_client
-                system_prompt = (
-                    "You are Sales Coach AI, an expert digital coach for GCash field sales representatives (DSPs) and Area Managers in the Philippines. "
-                    "Answer the user's inquiry professionally, concisely, and accurately in clean Markdown, based strictly on the provided real-time database context."
-                )
-                user_message = f"User Question: {request.question}\n\nLive Database Records:\n{context['data_summary']}"
-                raw_response = bedrock_client.invoke_model(
-                    model_id=settings.bedrock_model_id,
-                    system_prompt=system_prompt,
-                    user_message=user_message,
-                    max_tokens=700
-                )
-                if raw_response and len(raw_response.strip()) > 10:
-                    answer = raw_response.strip()
-            except Exception as bedrock_err:
-                logger.debug(f"Bedrock invocation in ask route skipped: {bedrock_err}")
+        # Step 2: Invoke Bedrock Foundation Model (Claude 3.5 Sonnet) directly with question + database grounding
+        try:
+            from app.aws.bedrock_client import bedrock_client
+            system_prompt = (
+                "You are Sales Coach AI, an intelligent digital coach and advisor for GCash field sales representatives (DSPs), "
+                "merchants, and Area Managers in the Philippines. "
+                "Answer the user's question directly, accurately, and conversationally in clean Markdown. "
+                "If the question is about GCash operations, merchants, POS terminals, QR standees, liquidity float, or sales territory, "
+                "use the live database records provided below to ground your answer. "
+                "If the question is a general question, greeting, or general knowledge inquiry, answer it clearly and concisely."
+            )
+            data_context = context.get("data_summary", "")
+            user_message = f"User Question: {request.question}\n\nLive Database & Territory Context:\n{data_context}"
+            
+            raw_response = bedrock_client.invoke_model(
+                model_id=settings.bedrock_model_id,
+                system_prompt=system_prompt,
+                user_message=user_message,
+                max_tokens=1024
+            )
+            if raw_response and len(raw_response.strip()) > 5:
+                answer = raw_response.strip()
+                sources.append(f"bedrock:{settings.bedrock_model_id}")
+        except Exception as bedrock_err:
+            logger.warning(f"Bedrock invocation in ask route encountered an issue: {bedrock_err}", exc_info=True)
 
-            if not answer:
-                answer = SemanticContextLayer.generate_response(context)
-
-        # Step 2: Fallback to Multi-Agent Graph if general inquiry
+        # Step 3: Multi-Agent Graph fallback if Bedrock was unavailable
         if not answer:
             try:
                 agent_result = await run_agent(
@@ -69,7 +71,6 @@ async def ask_question(
                     area_id=user.area_id
                 )
                 agent_answer = agent_result.get("response") or ""
-                # Avoid returning the generic territory greeting if we have semantic context
                 if agent_answer and "Sales Coach AI Territory Overview" not in agent_answer:
                     answer = agent_answer
                     is_clarification = agent_result.get("intent") == "unclear"
@@ -78,7 +79,7 @@ async def ask_question(
             except Exception as agent_err:
                 logger.warning(f"Agent execution exception: {agent_err}")
 
-        # Step 3: Final fallback to SemanticContextLayer default synthesis
+        # Step 4: Final fallback to SemanticContextLayer deterministic synthesis
         if not answer:
             answer = SemanticContextLayer.generate_response(context)
             sources.append("semantic_knowledge_layer")
