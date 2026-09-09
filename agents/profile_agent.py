@@ -7,6 +7,8 @@ from app.models.score import OutletScore
 from app.models.merchant import Merchant
 from app.models.transaction import Transaction
 from app.models.action import ActionRecommendation
+from app.models.operations import PosTerminal, QrCollateral
+from app.models.audit_execution import CashInLiquidityLog
 
 @trace("profile_node")
 async def profile_node(state: AgentState) -> AgentState:
@@ -65,6 +67,11 @@ async def profile_node(state: AgentState) -> AgentState:
             )
             actions = acts_res.scalars().all()
 
+            # Fetch POS hardware, QR collaterals, and Liquidity float
+            pos = (await db.execute(select(PosTerminal).where(PosTerminal.outlet_id == outlet.id))).scalars().first()
+            qr = (await db.execute(select(QrCollateral).where(QrCollateral.outlet_id == outlet.id))).scalars().first()
+            liq = (await db.execute(select(CashInLiquidityLog).where(CashInLiquidityLog.outlet_id == outlet.id))).scalars().first()
+
             state["outlet_data"] = {
                 "profile": {
                     "id": str(outlet.id),
@@ -76,7 +83,10 @@ async def profile_node(state: AgentState) -> AgentState:
                     "risk_tier": merchant.risk_tier if merchant else "low",
                     "city": outlet.city or "Metro Manila",
                     "status": outlet.status or "active",
-                    "address": outlet.address or ""
+                    "address": outlet.address or "",
+                    "pos_terminal": f"{pos.device_model} ({pos.hardware_status})" if pos else "None",
+                    "qr_collateral": f"{qr.collateral_type} ({qr.condition})" if qr else "Standard Sticker",
+                    "cash_in_float": f"₱{float(liq.closing_float):,.2f}" if liq else "N/A"
                 },
                 "score": float(score) if score else 0.0,
                 "factors": factors or ["declining_volume"],
@@ -93,5 +103,3 @@ async def profile_node(state: AgentState) -> AgentState:
             state["outlet_data"] = {}
             
     return state
-
-

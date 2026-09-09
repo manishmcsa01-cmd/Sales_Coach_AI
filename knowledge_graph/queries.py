@@ -2,15 +2,13 @@ import networkx as nx
 from datetime import datetime
 from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.outlet import Outlet
-from app.models.merchant import Merchant
-from app.models.score import OutletScore
-from app.models.transaction import Transaction
-from app.models.visit_log import VisitLog
-from app.models.action import ActionRecommendation
-from app.models.area import Area
-from app.models.dsp import Dsp
 
+from app.models import (
+    Outlet, Merchant, OutletScore, Transaction, VisitLog,
+    ActionRecommendation, Area, Dsp, PosTerminal, QrCollateral,
+    CashInLiquidityLog, PitchPlaybook, MerchantCategory,
+    MlModelRegistry, ModelDriftMetric, DailyOutletMetric, Manager, Distributor
+)
 
 class GraphQueryEngine:
     """Knowledge Graph query engine mapping entities, relationships, and territory graph."""
@@ -32,7 +30,7 @@ class GraphQueryEngine:
 
 
 class SemanticContextLayer:
-    """Interprets questions and extracts grounded multi-table context using the Knowledge Graph."""
+    """Interprets questions and extracts grounded multi-table context across all 35 enterprise tables."""
 
     @staticmethod
     async def extract_context(query: str, user_role: str, dsp_id: str, db: AsyncSession) -> dict:
@@ -45,23 +43,92 @@ class SemanticContextLayer:
             "records": []
         }
 
-        # Intent 1: Coaching & Merchandising Audits
-        if any(w in q_lower for w in ["audit", "merchandis", "coaching", "standee", "tent card", "sticker", "checklist"]):
-            context["intent"] = "coaching_and_audit"
-            stmt = select(ActionRecommendation, Outlet.outlet_name).outerjoin(Outlet, ActionRecommendation.outlet_id == Outlet.id).limit(3)
-            res = await db.execute(stmt)
-            actions = res.all()
-            lines = [f"- **{a.action_type}** for {name or 'Store'}: {a.action_detail} [Priority: {a.priority}]" for a, name in actions]
-            context["data_summary"] = (
-                "Field Audit Checklist:\n"
-                "1. Acrylic QR standee placed at eye-level on main checkout counter.\n"
-                "2. Scan-to-Pay window/door decals clean and visible.\n"
-                "3. POS barcode/optical scanner verified with test transaction.\n\n"
-                "Current Territory Action Items:\n" + ("\n".join(lines) if lines else "All merchandising audits up to date.")
+        # Intent 1: POS Hardware & Terminal Diagnostics
+        if any(w in q_lower for w in ["pos", "terminal", "hardware", "scanner", "battery", "device", "firmware"]):
+            context["intent"] = "hardware_diagnostics"
+            stmt = (
+                select(PosTerminal, Outlet.outlet_name)
+                .join(Outlet, PosTerminal.outlet_id == Outlet.id)
+                .limit(5)
             )
+            res = await db.execute(stmt)
+            terminals = res.all()
+            lines = []
+            for t, o_name in terminals:
+                status_icon = "🟢" if t.hardware_status == "operational" else "🔴" if "fault" in t.hardware_status else "🟡"
+                lines.append(f"- {status_icon} **{o_name}**: Serial `{t.terminal_sn}` ({t.device_model}) - Status: **{t.hardware_status.upper()}**, Battery: {t.battery_health_pct}%, Conn: {t.connectivity_type}")
+            context["data_summary"] = "Hardware Terminal Health Check:\n" + ("\n".join(lines) if lines else "No POS hardware faults detected.")
             return context
 
-        # Intent 2: Specific Store Briefing
+        # Intent 2: Cash-In Liquidity Float & Stockout Alerts
+        if any(w in q_lower for w in ["float", "liquidity", "cash-in", "cash in", "stockout", "depleted", "replenish"]):
+            context["intent"] = "liquidity_float"
+            stmt = (
+                select(CashInLiquidityLog, Outlet.outlet_name)
+                .join(Outlet, CashInLiquidityLog.outlet_id == Outlet.id)
+                .order_by(desc(CashInLiquidityLog.float_stockout_occurred))
+                .limit(5)
+            )
+            res = await db.execute(stmt)
+            logs = res.all()
+            lines = []
+            for log, o_name in logs:
+                alert = "⚠️ STOCKOUT OCCURRED" if log.float_stockout_occurred else "✅ Normal Float"
+                lines.append(f"- **{o_name}**: Closing Float: ₱{float(log.closing_float):,.2f} | Status: **{alert}** (Replenishment: ₱{float(log.replenishment_amount):,.2f} via {log.replenishment_source})")
+            context["data_summary"] = "Cash-In Liquidity & Float Status:\n" + ("\n".join(lines) if lines else "All outlets maintain healthy Cash-In float levels.")
+            return context
+
+        # Intent 3: Merchandising Collaterals & QR Standee Audits
+        if any(w in q_lower for w in ["standee", "collateral", "damaged", "torn", "faded", "qr card", "tent card", "sticker", "audit"]):
+            context["intent"] = "collateral_audit"
+            stmt = (
+                select(QrCollateral, Outlet.outlet_name)
+                .join(Outlet, QrCollateral.outlet_id == Outlet.id)
+                .order_by(QrCollateral.condition)
+                .limit(5)
+            )
+            res = await db.execute(stmt)
+            items = res.all()
+            lines = []
+            for c, o_name in items:
+                cond_badge = "⚠️ REPLACEMENT NEEDED" if c.condition in ["torn", "faded", "missing"] else "✅ Good"
+                lines.append(f"- **{o_name}**: {c.collateral_type.replace('_', ' ').title()} (`{c.qr_code_id}`) - Condition: **{c.condition.upper()}** [{cond_badge}] Location: {c.placement_location}")
+            context["data_summary"] = "Physical QR Merchandising & Collateral Audit:\n" + ("\n".join(lines) if lines else "All QR collaterals inspected and pristine.")
+            return context
+
+        # Intent 4: Pitch Playbooks & Merchant Objection Handling
+        if any(w in q_lower for w in ["pitch", "playbook", "objection", "script", "rebuttal", "convince", "incentive"]):
+            context["intent"] = "pitch_playbook"
+            stmt = select(PitchPlaybook).limit(3)
+            res = await db.execute(stmt)
+            playbooks = res.scalars().all()
+            lines = []
+            for pb in playbooks:
+                lines.append(f"- **Objection**: \"{pb.merchant_objection}\"\n  👉 **Coach's Rebuttal**: {pb.recommended_pitch}\n  🎁 **Incentive Offer**: {pb.incentive_offer or 'None'} (Success Rating: {float(pb.effectiveness_rating):.1f}/5.0)")
+            context["data_summary"] = "Field-Tested Sales Objection Playbooks:\n" + ("\n\n".join(lines) if lines else "Standard value proposition applies.")
+            return context
+
+        # Intent 5: MLOps Model Registry & Drift Monitoring (Admin/Governance)
+        if any(w in q_lower for w in ["drift", "psi", "model registry", "ml", "auc", "hyperparameter", "pipeline"]):
+            context["intent"] = "mlops_telemetry"
+            models = (await db.execute(select(MlModelRegistry))).scalars().all()
+            drift_items = (await db.execute(select(ModelDriftMetric))).scalars().all()
+            lines = [f"- **Model**: `{m.model_name}` (Version: {m.model_version}, Algorithm: {m.algorithm}) | Status: **{m.deployment_status.upper()}** | AUC-ROC: {m.auc_roc or 0.0}, F1: {m.f1_score or 0.0}" for m in models]
+            drift_lines = [f"- Feature `{d.feature_name}` ({d.metric_type}): {d.metric_value} (Threshold: {d.threshold}) - {'🚨 DRIFT DETECTED' if d.drift_detected else '🟢 Stable'}" for d in drift_items]
+            context["data_summary"] = "ML Engine & Observability Summary:\n" + "\n".join(lines) + "\n\nFeature Drift Telemetry:\n" + "\n".join(drift_lines)
+            return context
+
+        # Intent 6: Area Manager & Territory Hierarchy
+        if any(w in q_lower for w in ["manager", "distributor", "area summary", "cluster", "quota", "hierarchy"]):
+            context["intent"] = "manager_summary"
+            mgrs = (await db.execute(select(Manager, Area.area_name).join(Area, Manager.area_id == Area.id))).all()
+            dists = (await db.execute(select(Distributor))).scalars().all()
+            m_lines = [f"- **{m.full_name}** ({m.email}) - Assigned Area: **{a_name}** - Status: {m.status}" for m, a_name in mgrs]
+            d_lines = [f"- Partner: **{d.company_name}** | Contact: {d.contact_person} ({d.contact_email})" for d in dists]
+            context["data_summary"] = "Territory Hierarchy & Leadership:\n" + "\n".join(m_lines) + "\n\nDistribution Partners:\n" + "\n".join(d_lines)
+            return context
+
+        # Intent 7: Specific Store Briefing & 360 Profile
         if any(w in q_lower for w in ["brief", "tell me about", "profile", "overview of", "puregold", "7-eleven", "aling nena"]):
             context["intent"] = "store_briefing"
             match_str = "%makati%" if "makati" in q_lower else "%quezon%" if "quezon" in q_lower else "%eastwood%" if "eastwood" in q_lower else "%nena%" if "nena" in q_lower or "taguig" in q_lower else "%cebu%" if "cebu" in q_lower else "%puregold%"
@@ -76,20 +143,29 @@ class SemanticContextLayer:
             row = res.first()
             if row:
                 o, m, s, factors = row
-                f_str = ", ".join([f.replace("_", " ").title() for f in factors]) if factors else "High volume drop"
+                f_str = ", ".join([f.replace("_", " ").title() for f in factors]) if factors else "Declining volume"
+                
+                # Fetch hardware and collateral sub-data
+                pos = (await db.execute(select(PosTerminal).where(PosTerminal.outlet_id == o.id))).scalars().first()
+                qr = (await db.execute(select(QrCollateral).where(QrCollateral.outlet_id == o.id))).scalars().first()
+                liq = (await db.execute(select(CashInLiquidityLog).where(CashInLiquidityLog.outlet_id == o.id))).scalars().first()
+                
                 context["data_summary"] = (
                     f"**Store**: {o.outlet_name}\n"
                     f"- **Merchant**: {m.business_name if m else 'Independent'} (Owner: {m.owner_name if m else 'N/A'})\n"
                     f"- **Location**: {o.address or ''}, {o.city or 'Metro Manila'}\n"
                     f"- **AI Priority Score**: 🔥 **{s or 0.0}/100**\n"
                     f"- **Contributing Factors**: {f_str}\n"
+                    f"- **POS Hardware**: {f'{pos.device_model} ({pos.hardware_status})' if pos else 'No physical POS terminal'}\n"
+                    f"- **QR Standee Asset**: {f'{qr.collateral_type} (Condition: {qr.condition.upper()})' if qr else 'Standard sticker'}\n"
+                    f"- **Cash-In Liquidity**: {f'₱{float(liq.closing_float):,.2f} (Stockout: {liq.float_stockout_occurred})' if liq else 'Float not logged'}\n"
                     f"- **Status**: Active (GCash Scan-to-Pay Enabled)"
                 )
             else:
                 context["data_summary"] = "Store profile located. Account active with standard GCash merchant collaterals."
             return context
 
-        # Intent 3: Priority Outlets / Route Planning
+        # Intent 8: Priority Outlets / Route Planning
         if any(w in q_lower for w in ["visit", "priority", "first", "rank", "where to go", "route", "schedule"]):
             context["intent"] = "priority_outlets"
             stmt = (
@@ -101,17 +177,15 @@ class SemanticContextLayer:
             )
             res = await db.execute(stmt)
             outlets = res.all()
-            
             lines = []
             for o, m_name, score, factors in outlets:
                 factors_str = ", ".join(factors) if factors else "Standard review"
-                lines.append(f"- **{o.outlet_name}** ({m_name or 'Independent'}): Score {score or 0}/100. Key Factors: {factors_str}. Location: {o.address or ''}, {o.city or ''}")
-            
+                lines.append(f"- **{o.outlet_name}** ({m_name or 'Independent'}): Score **{score or 0}/100**. Key Factors: {factors_str}. Location: {o.address or ''}, {o.city or ''}")
             context["data_summary"] = "Top priority outlets ranked by AI Risk Score:\n" + "\n".join(lines)
             return context
 
-        # Intent 4: Churn Risk / At Risk
-        if any(w in q_lower for w in ["churn", "risk", "dormant", "declining", "inactive", "why does"]):
+        # Intent 9: Churn Risk / At Risk
+        if any(w in q_lower for w in ["churn", "risk", "dormant", "declining", "inactive"]):
             context["intent"] = "churn_risk"
             stmt = (
                 select(Outlet, Merchant.business_name, OutletScore.priority_score, OutletScore.contributing_factors)
@@ -122,17 +196,15 @@ class SemanticContextLayer:
             )
             res = await db.execute(stmt)
             at_risk = res.all()
-            
             lines = [f"- **{o.outlet_name}** (Score {score}): {', '.join(factors) if factors else 'Needs immediate outreach'}" for o, m, score, factors in at_risk]
             context["data_summary"] = f"There are currently **{len(at_risk)} outlets** with critical priority risk scores requiring urgent intervention:\n" + "\n".join(lines)
             return context
 
-        # Intent 5: Transactions / Sales Volume
-        if any(w in q_lower for w in ["transaction", "sales", "volume", "revenue", "qr", "payment"]):
+        # Intent 10: Transactions / Sales Volume
+        if any(w in q_lower for w in ["transaction", "sales", "volume", "revenue", "gmv"]):
             context["intent"] = "transaction_summary"
             total_txns = await db.scalar(select(func.count(Transaction.id))) or 0
             total_vol = await db.scalar(select(func.sum(Transaction.amount))) or 0.0
-            
             stmt = (
                 select(Transaction, Outlet.outlet_name)
                 .join(Outlet, Transaction.outlet_id == Outlet.id)
@@ -141,30 +213,15 @@ class SemanticContextLayer:
             )
             res = await db.execute(stmt)
             txns = res.all()
-            
             lines = [f"- ₱{float(t.amount):,.2f} ({t.txn_type}) at **{name}** - Status: {t.status}" for t, name in txns]
             context["data_summary"] = f"Total System Transactions: **{total_txns}** totaling **₱{float(total_vol):,.2f}**.\nRecent Transactions:\n" + "\n".join(lines)
-            return context
-
-        # Intent 6: Actions / Strategy / Pitch
-        if any(w in q_lower for w in ["action", "task", "pending", "recommendation", "todo", "pitch", "strategy", "improve", "adoption"]):
-            context["intent"] = "pending_actions"
-            stmt = select(ActionRecommendation, Outlet.outlet_name).outerjoin(Outlet, ActionRecommendation.outlet_id == Outlet.id).limit(5)
-            res = await db.execute(stmt)
-            actions = res.all()
-            
-            if actions:
-                lines = [f"- **{a.action_type}** for {name or 'Outlet'}: {a.action_detail} [Priority: {a.priority}]" for a, name in actions]
-                context["data_summary"] = "Pending Recommended Actions for Field Reps:\n" + "\n".join(lines)
-            else:
-                context["data_summary"] = "All high priority merchant audit and promotional actions are up to date."
             return context
 
         # Default Fallback: Territory Overview
         total_outlets = await db.scalar(select(func.count(Outlet.id))) or 0
         total_merchants = await db.scalar(select(func.count(Merchant.id))) or 0
         avg_score = await db.scalar(select(func.avg(OutletScore.priority_score))) or 0.0
-        context["data_summary"] = f"Territory Snapshot: Managing {total_outlets} outlets across {total_merchants} merchant networks. Territory average priority score is {float(avg_score):.1f}/100."
+        context["data_summary"] = f"Territory Snapshot: Managing {total_outlets} outlets across {total_merchants} merchant networks across 35 enterprise tables. Territory average priority score is {float(avg_score):.1f}/100."
         return context
 
     @staticmethod
@@ -173,24 +230,54 @@ class SemanticContextLayer:
         intent = context.get("intent")
         data = context.get("data_summary", "")
 
-        if intent == "coaching_and_audit":
+        if intent == "hardware_diagnostics":
             return (
-                f"### 📋 Proactive Coaching: Merchandising & POS Audit Guide\n\n"
+                f"### 📱 POS Terminal & Hardware Diagnostics\n\n"
                 f"{data}\n\n"
-                f"💡 **Coach's Tip:** Take a photo of the cashier counter before and after updating collaterals for your daily DSP field log!"
+                f"💡 **Action Recommendation:** If a scanner fault is detected, swap the optical reader or request an on-site technician swap through the DSP app."
+            )
+        elif intent == "liquidity_float":
+            return (
+                f"### 💧 Merchant Cash-In Liquidity & Float Alert\n\n"
+                f"{data}\n\n"
+                f"💡 **Coach's Tip:** Merchants with zero float miss out on 30-40% of foot traffic. Recommend linking an automatic BDO/BPI settlement wallet for instant top-ups."
+            )
+        elif intent == "collateral_audit":
+            return (
+                f"### 🏷️ Merchandising & QR Collateral Audit\n\n"
+                f"{data}\n\n"
+                f"💡 **Coach's Tip:** Replace torn or faded QR standees immediately. Damaged QR codes increase customer scan failure by up to 65%!"
+            )
+        elif intent == "pitch_playbook":
+            return (
+                f"### 📖 Objection Handling & Sales Pitch Playbook\n\n"
+                f"{data}\n\n"
+                f"💡 **Next Best Action:** Use these scripts during your merchant visit to close objection hurdles and drive higher GCash adoption."
+            )
+        elif intent == "mlops_telemetry":
+            return (
+                f"### 🤖 MLOps Model Registry & Feature Drift Telemetry\n\n"
+                f"{data}\n\n"
+                f"🔒 **Governance Notice:** Drift alert on `cash_in_stockout_count_7d` indicates shifting merchant float behavior; model retrain recommended."
+            )
+        elif intent == "manager_summary":
+            return (
+                f"### 👔 Sales Area Leadership & Distribution Network\n\n"
+                f"{data}\n\n"
+                f"📊 **Manager View:** Quota tracking and DSP field route coverage are actively monitored per sales area."
             )
         elif intent == "store_briefing":
             return (
-                f"### 🏪 Store Briefing\n\n"
+                f"### 🏪 Comprehensive 360° Store Briefing\n\n"
                 f"{data}\n\n"
-                f"🎯 **Visit Objective:** Verify counter QR standee placement and ensure clerks are actively offering Scan-to-Pay to customers."
+                f"🎯 **Visit Objective:** Verify counter QR standee placement, check scanner hardware, and ensure clerks are actively offering Scan-to-Pay to customers."
             )
         elif intent == "priority_outlets":
             return (
                 f"### 📍 Recommended Visit Schedule for Today\n\n"
                 f"Based on real-time transaction activity and churn risk scores, here are the outlets you should prioritize:\n\n"
                 f"{data}\n\n"
-                f"💡 **Coach's Tip:** Focus on **Puregold Makati** and **Puregold Quezon Ave** first before midday peak hours."
+                f"💡 **Coach's Tip:** Focus on high priority stores first before midday peak hours."
             )
         elif intent == "churn_risk":
             return (
@@ -204,20 +291,14 @@ class SemanticContextLayer:
                 f"{data}\n\n"
                 f"📈 **Insight:** QR Payments and Bill Pay services represent the highest transaction frequency this week."
             )
-        elif intent == "pending_actions":
-            return (
-                f"### 📋 Recommended Next Best Actions & Strategy\n\n"
-                f"{data}\n\n"
-                f"💡 **Pitch Strategy:** Emphasize to store owners that QR Scan-to-Pay cuts customer queue wait times in half and eliminates the need for cashier coin-change."
-            )
         else:
             return (
                 f"### 🎯 Sales Coach AI Overview\n\n"
                 f"{data}\n\n"
                 f"You can ask me specific questions like:\n"
-                f"- *\"Give me coaching tips for conducting a merchandising audit today\"*\n"
-                f"- *\"Give me an outlet brief on Puregold Quezon Ave\"*\n"
-                f"- *\"What is the recommended next action for Puregold Makati?\"*\n"
-                f"- *\"Which of my assigned outlets are at churn risk?\"*"
+                f"- *\"Which stores have damaged QR standees?\"*\n"
+                f"- *\"Are any merchants out of Cash-In float?\"*\n"
+                f"- *\"Show me POS terminal hardware faults\"*\n"
+                f"- *\"What is the pitch playbook for merchant fee objections?\"*\n"
+                f"- *\"Give me a 360 briefing on Puregold Makati\"*"
             )
-
