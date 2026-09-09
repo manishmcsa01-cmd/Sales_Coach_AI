@@ -10,12 +10,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 class BedrockClient:
-    # Supported Claude models in order of priority (APAC Inference Profiles first to satisfy AWS Organizations SCP)
+    # Supported LLM models in order of priority:
+    # Amazon Nova models are AWS first-party models (almost never blocked by AWS SCPs)
     FALLBACK_MODELS = [
+        "amazon.nova-lite-v1:0",
+        "amazon.nova-micro-v1:0",
+        "amazon.nova-pro-v1:0",
+        "apac.amazon.nova-lite-v1:0",
+        "apac.amazon.nova-micro-v1:0",
+        "apac.amazon.nova-pro-v1:0",
         "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
         "apac.anthropic.claude-3-sonnet-20240229-v1:0",
         "apac.anthropic.claude-3-haiku-20240307-v1:0",
-        "anthropic.claude-3-5-sonnet-20240620-v1:0",
     ]
 
     def __init__(self):
