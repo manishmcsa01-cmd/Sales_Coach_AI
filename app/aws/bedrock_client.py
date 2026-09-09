@@ -51,7 +51,7 @@ class BedrockClient:
             if fb not in models_to_try:
                 models_to_try.append(fb)
 
-        last_err = None
+        attempted_errors = []
         for candidate_model in models_to_try:
             # 1. Try modern Bedrock Converse API first (AWS recommended standard for Claude models)
             try:
@@ -78,6 +78,7 @@ class BedrockClient:
                     logger.info(f"Bedrock Converse API succeeded with model: {candidate_model}")
                     return result_text
             except Exception as conv_err:
+                attempted_errors.append(f"{candidate_model} (Converse): {conv_err}")
                 logger.debug(f"Converse API call for {candidate_model} failed ({conv_err}), attempting invoke_model...")
 
             # 2. Fallback to InvokeModel with Anthropic Messages API
@@ -101,10 +102,11 @@ class BedrockClient:
                     logger.info(f"Bedrock invoke_model succeeded with model: {candidate_model}")
                     return text
             except Exception as e:
-                last_err = e
+                attempted_errors.append(f"{candidate_model} (InvokeModel): {e}")
                 logger.warning(f"Bedrock model {candidate_model} failed: {e}. Trying next candidate...")
 
-        raise last_err or RuntimeError("All Bedrock model candidates failed")
+        summary_msg = " | ".join(attempted_errors[:3])
+        raise RuntimeError(f"All candidates failed: {summary_msg}")
 
     def invoke_model_stream(self, model_id: str, system_prompt: str, user_message: str, max_tokens: int = 2048) -> Generator[str, None, None]:
         payload = {
