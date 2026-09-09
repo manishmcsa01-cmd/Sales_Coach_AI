@@ -43,6 +43,25 @@ class SemanticContextLayer:
             "records": []
         }
 
+        # Intent 0: Computer Vision & Photo Audit Validation
+        if any(w in q_lower for w in ["computer vision", "vision", "photo", "image", "cv", "visual", "picture"]):
+            context["intent"] = "vision_audit"
+            stmt = (
+                select(OutletPhoto, Outlet.outlet_name)
+                .join(Outlet, OutletPhoto.outlet_id == Outlet.id)
+                .order_by(desc(OutletPhoto.captured_at))
+                .limit(5)
+            )
+            res = await db.execute(stmt)
+            photos = res.all()
+            lines = []
+            for p, o_name in photos:
+                conf_pct = f"{float(p.ai_confidence_score) * 100:.1f}%" if p.ai_confidence_score else "N/A"
+                label_icon = "✅" if "valid" in (p.ai_validation_label or "").lower() else "⚠️"
+                lines.append(f"- {label_icon} **{o_name}**: Type `{p.photo_type}` | CV Model Label: **{p.ai_validation_label}** (Confidence: **{conf_pct}**)")
+            context["data_summary"] = "Computer Vision Photo Audit & Detection Results:\n" + ("\n".join(lines) if lines else "No photo audits logged.")
+            return context
+
         # Intent 1: POS Hardware & Terminal Diagnostics
         if any(w in q_lower for w in ["pos", "terminal", "hardware", "scanner", "battery", "device", "firmware"]):
             context["intent"] = "hardware_diagnostics"
@@ -230,7 +249,13 @@ class SemanticContextLayer:
         intent = context.get("intent")
         data = context.get("data_summary", "")
 
-        if intent == "hardware_diagnostics":
+        if intent == "vision_audit":
+            return (
+                f"### 📷 Computer Vision (CV) Photo Audit Analysis\n\n"
+                f"{data}\n\n"
+                f"💡 **CV Model Insight:** The Convolutional Neural Network (CNN) analyzes cashier counter photos to verify if the QR standee is properly mounted, obscured, or physically damaged."
+            )
+        elif intent == "hardware_diagnostics":
             return (
                 f"### 📱 POS Terminal & Hardware Diagnostics\n\n"
                 f"{data}\n\n"
