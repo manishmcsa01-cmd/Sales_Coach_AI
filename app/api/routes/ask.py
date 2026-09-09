@@ -59,6 +59,8 @@ async def ask_question(
                 sources.append(f"bedrock:{settings.bedrock_model_id}")
         except Exception as bedrock_err:
             logger.warning(f"Bedrock invocation in ask route encountered an issue: {bedrock_err}", exc_info=True)
+            # Surface Bedrock connection diagnostic directly to help user verify AWS IAM / model permissions
+            bedrock_diagnostic = f"⚠️ **Bedrock LLM Error**: `{type(bedrock_err).__name__}: {str(bedrock_err)}`"
 
         # Step 3: Multi-Agent Graph fallback if Bedrock was unavailable
         if not answer:
@@ -82,6 +84,8 @@ async def ask_question(
         # Step 4: Final fallback to SemanticContextLayer deterministic synthesis
         if not answer:
             answer = SemanticContextLayer.generate_response(context)
+            if 'bedrock_diagnostic' in locals() and bedrock_diagnostic:
+                answer += f"\n\n---\n{bedrock_diagnostic}"
             sources.append("semantic_knowledge_layer")
 
         return AskResponse(
