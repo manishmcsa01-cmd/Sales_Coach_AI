@@ -61,6 +61,40 @@ class Settings(BaseSettings):
         description="Amazon Bedrock Guardrail Version",
     )
 
+    # FinOps & LLM Cost Guardrails ($100/mo cap)
+    llm_monthly_budget_usd: float = Field(
+        default=100.0,
+        description="Hard monthly budget cap in USD for Bedrock LLM consumption",
+    )
+    llm_daily_request_limit: int = Field(
+        default=2000,
+        description="Maximum allowed LLM requests per day across all users",
+    )
+    llm_rate_limit_per_minute: int = Field(
+        default=60,
+        description="Maximum allowed LLM requests per minute (burst protection)",
+    )
+    llm_max_input_chars: int = Field(
+        default=8000,
+        description="Maximum prompt character length allowed per request (~2,000 tokens)",
+    )
+    llm_max_output_tokens: int = Field(
+        default=1024,
+        description="Maximum response tokens allowed per request",
+    )
+    llm_cost_per_1k_input_tokens: float = Field(
+        default=0.0003,
+        description="Estimated cost per 1k input tokens in USD (e.g. Nova Lite / Haiku)",
+    )
+    llm_cost_per_1k_output_tokens: float = Field(
+        default=0.00125,
+        description="Estimated cost per 1k output tokens in USD",
+    )
+    llm_circuit_breaker_cooldown_seconds: int = Field(
+        default=60,
+        description="Seconds to pause LLM invocations after a 429 / QuotaExceeded error",
+    )
+
     # Storage & Persistence
     s3_bucket_name: str = Field(
         ...,

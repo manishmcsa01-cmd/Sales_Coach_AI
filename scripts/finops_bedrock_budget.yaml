@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'SalesCoach AI - FinOps Amazon Bedrock $100 Monthly Cost Budget and Alerts'
+
+Parameters:
+  MonthlyBudgetLimitUSD:
+    Type: Number
+    Default: 100.0
+    Description: Hard monthly limit in USD for Bedrock spend.
+  NotificationEmail:
+    Type: String
+    Description: Email address to receive 50%, 80%, and 100% budget breach alerts.
+
+Resources:
+  BedrockMonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: SalesCoachAI-Bedrock-100USD-Budget
+        BudgetLimit:
+          Amount: !Ref MonthlyBudgetLimitUSD
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+        CostFilters:
+          Service:
+            - "Amazon Bedrock"
+            - "bedrock"
+        CostTypes:
+          IncludeTax: true
+          IncludeSubscription: true
+          UseBlended: false
+          IncludeRefund: false
+          IncludeCredit: false
+          IncludeUpfront: true
+          IncludeRecurring: true
+          IncludeOtherSubscription: true
+          IncludeSupport: false
+          IncludeDiscount: true
+          UseAmortized: false
+      NotificationsWithSubscribers:
+        # Tier 1 Alert: 50% spend
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 50
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref NotificationEmail
+
+        # Tier 2 Alert: 80% spend warning
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref NotificationEmail
+
+        # Tier 3 Alert: 100% spend critical limit
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref NotificationEmail
+
+Outputs:
+  BudgetName:
+    Description: The name of the created Bedrock Cost Budget
+    Value: !Ref BedrockMonthlyBudget

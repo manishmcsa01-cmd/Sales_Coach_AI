@@ -25,16 +25,26 @@ async def ask_question(
     is_clarification = False
     sources = []
 
+    # Application-level control: disallow empty or trivial spam queries to avoid wasted LLM processing
+    cleaned_question = (request.question or "").strip()
+    if len(cleaned_question) < 2:
+        return AskResponse(
+            answer="Please ask a specific question about your sales territory, merchant performance, or daily visit priorities.",
+            conversation_id=request.conversation_id or str(uuid.uuid4()),
+            sources=["input_validation_guardrail"],
+            is_clarification=False
+        )
+
     try:
         # Step 1: Query the Semantic Context Layer across all 35 enterprise tables
         context = await SemanticContextLayer.extract_context(
-            query=request.question,
+            query=cleaned_question,
             user_role=user.role,
             dsp_id=user.dsp_id or "",
             db=db
         )
 
-        # Step 2: Invoke Bedrock Foundation Model (Claude 3.5 Sonnet) directly with question + database grounding
+        # Step 2: Invoke Bedrock Foundation Model (Claude 3.5 Sonnet / Nova) directly with question + database grounding
         try:
             from app.aws.bedrock_client import bedrock_client
             system_prompt = (

@@ -107,12 +107,20 @@ async def admin_health(
     )
     score_obj = latest_score.scalars().first()
     
-    scoring_model_version = score_obj.model_version if score_obj and score_obj.model_version else "v1.0"
-    last_score_date = score_obj.score_date.isoformat() if score_obj and score_obj.score_date else "N/A"
-    
     return {
         "tables": tables,
         "scoring_model_version": scoring_model_version,
         "last_score_date": last_score_date,
         "db_size_mb": 150 # Dummy value
     }
+
+
+@router.get("/guardrails")
+async def get_guardrails_status(
+    current_user: UserClaims = Depends(get_current_user)
+):
+    """Retrieve real-time FinOps budget and LLM guardrail metrics."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin role required")
+    from app.aws.llm_guardrails import guardrails
+    return guardrails.get_status()
