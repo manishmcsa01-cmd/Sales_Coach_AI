@@ -348,12 +348,275 @@ async def seed_data_if_empty():
             await session.rollback()
             logger.error(f"Error seeding database: {e}", exc_info=True)
 
+def _parse_date(d):
+    if not d:
+        return None
+    try:
+        return datetime.fromisoformat(d).date()
+    except Exception:
+        return None
+
+def _parse_dt(d):
+    if not d:
+        return None
+    try:
+        return datetime.fromisoformat(d)
+    except Exception:
+        return None
+
+async def seed_from_csv(session: AsyncSession, csv_dir: Path):
+    """Seed full enterprise dataset from CSV directory into database."""
+    import csv
+    logger.info(f"Ingesting enterprise dataset from CSV directory: {csv_dir}")
+    
+    # 1. Areas
+    areas_path = csv_dir / "areas.csv"
+    area_id_map = {}
+    if areas_path.exists():
+        with open(areas_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                a_id = uuid.UUID(r["id"])
+                area_id_map[r["area_name"]] = a_id
+                existing = await session.get(Area, a_id)
+                if not existing:
+                    session.add(Area(id=a_id, area_name=r["area_name"], region=r.get("region", "NCR")))
+        await session.flush()
+
+    south_id = area_id_map.get("Metro Manila South")
+
+    # 2. Merchants
+    merch_path = csv_dir / "merchants.csv"
+    if merch_path.exists():
+        with open(merch_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                m_id = uuid.UUID(r["id"])
+                existing = await session.get(Merchant, m_id)
+                if not existing:
+                    session.add(Merchant(
+                        id=m_id,
+                        business_name=r["business_name"],
+                        owner_name=r.get("owner_name"),
+                        business_type=r.get("business_type"),
+                        kyc_status=r.get("status", "verified"),
+                        risk_tier="low",
+                        onboarded_date=_parse_date(r.get("registration_date"))
+                    ))
+        await session.flush()
+
+    # 3. Managers & DSPs
+    mgr_path = csv_dir / "managers.csv"
+    if mgr_path.exists():
+        with open(mgr_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                mgr_id = uuid.UUID(r["id"])
+                existing = await session.get(Dsp, mgr_id)
+                if not existing:
+                    session.add(Dsp(
+                        id=mgr_id,
+                        name=r["full_name"],
+                        email=r["email"],
+                        role="manager",
+                        area_id=uuid.UUID(r["area_id"]) if r.get("area_id") else None,
+                        status=r.get("status", "active"),
+                        hire_date=_parse_date(r.get("hire_date"))
+                    ))
+        await session.flush()
+
+    # Ensure demo manager account exists and has South assigned
+    demo_mgr = await session.scalar(select(Dsp).where(Dsp.email == "manager@salescoach.com"))
+    if not demo_mgr:
+        session.add(Dsp(id=uuid.uuid4(), name="Maria Santos", email="manager@salescoach.com", role="manager", area_id=south_id, status="active", hire_date=date(2022, 5, 10)))
+    elif south_id and demo_mgr.area_id != south_id:
+        demo_mgr.area_id = south_id
+
+    # Add all 40 field DSPs
+    dsp_path = csv_dir / "dsps.csv"
+    if dsp_path.exists():
+        with open(dsp_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                d_id = uuid.UUID(r["id"])
+                existing = await session.get(Dsp, d_id)
+                if not existing:
+                    session.add(Dsp(
+                        id=d_id,
+                        name=r["full_name"],
+                        email=r["email"],
+                        role="dsp",
+                        area_id=uuid.UUID(r["area_id"]) if r.get("area_id") else None,
+                        manager_id=uuid.UUID(r["manager_id"]) if r.get("manager_id") else None,
+                        status=r.get("status", "active"),
+                        hire_date=_parse_date(r.get("hire_date"))
+                    ))
+        await session.flush()
+
+    # 4. Outlets (708 records)
+    outlets_path = csv_dir / "outlets.csv"
+    if outlets_path.exists():
+        with open(outlets_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                o_id = uuid.UUID(r["id"])
+                existing = await session.get(Outlet, o_id)
+                if not existing:
+                    session.add(Outlet(
+                        id=o_id,
+                        merchant_id=uuid.UUID(r["merchant_id"]),
+                        area_id=uuid.UUID(r["area_id"]) if r.get("area_id") else None,
+                        outlet_name=r["outlet_name"],
+                        address=r.get("address"),
+                        city=r.get("city"),
+                        region=r.get("province"),
+                        latitude=float(r["latitude"]) if r.get("latitude") else None,
+                        longitude=float(r["longitude"]) if r.get("longitude") else None,
+                        outlet_type=r.get("outlet_type", "tier1_urban"),
+                        status=r.get("status", "active")
+                    ))
+        await session.flush()
+
+    # 5. Assignments (708 records)
+    assign_path = csv_dir / "assignments.csv"
+    if assign_path.exists():
+        with open(assign_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                as_id = uuid.UUID(r["id"])
+                existing = await session.get(DspOutletAssignment, as_id)
+                if not existing:
+                    session.add(DspOutletAssignment(
+                        id=as_id,
+                        dsp_id=uuid.UUID(r["dsp_id"]),
+                        outlet_id=uuid.UUID(r["outlet_id"]),
+                        assigned_date=_parse_date(r.get("assigned_date")),
+                        is_primary=True
+                    ))
+        await session.flush()
+
+    # 6. Outlet Scores (708 records)
+    scores_path = csv_dir / "outlet_scores.csv"
+    if scores_path.exists():
+        with open(scores_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                sc_id = uuid.UUID(r["id"])
+                existing = await session.get(OutletScore, sc_id)
+                if not existing:
+                    factors = r.get("contributing_factors", "").split("|") if r.get("contributing_factors") else ["declining_volume"]
+                    session.add(OutletScore(
+                        id=sc_id,
+                        outlet_id=uuid.UUID(r["outlet_id"]),
+                        priority_score=float(r["priority_score"]),
+                        contributing_factors=factors,
+                        score_date=_parse_date(r.get("scored_at")) or date.today(),
+                        model_version="v1.0.0"
+                    ))
+        await session.flush()
+
+    # 7. Action Recommendations (500 records)
+    actions_path = csv_dir / "action_recommendations.csv"
+    if actions_path.exists():
+        with open(actions_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                act_id = uuid.UUID(r["id"])
+                existing = await session.get(ActionRecommendation, act_id)
+                if not existing:
+                    session.add(ActionRecommendation(
+                        id=act_id,
+                        outlet_id=uuid.UUID(r["outlet_id"]) if r.get("outlet_id") else None,
+                        dsp_id=uuid.UUID(r["dsp_id"]) if r.get("dsp_id") else None,
+                        action_type=r.get("action_type", "visit_merchant"),
+                        action_detail=r.get("description", ""),
+                        status=r.get("status", "pending")
+                    ))
+        await session.flush()
+
+    # 8. Products
+    prod_path = csv_dir / "products.csv"
+    if prod_path.exists():
+        with open(prod_path, "r", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                p_id = uuid.UUID(r["id"])
+                existing = await session.get(Product, p_id)
+                if not existing:
+                    session.add(Product(
+                        id=p_id,
+                        product_name=r["product_name"],
+                        category=r.get("category", "payments"),
+                        description=r.get("product_name"),
+                        is_active=True
+                    ))
+        await session.flush()
+
+    # 9. Visit Logs (first 3,000 records)
+    visits_path = csv_dir / "visit_logs.csv"
+    if visits_path.exists():
+        with open(visits_path, "r", encoding="utf-8") as f:
+            count = 0
+            for r in csv.DictReader(f):
+                if count >= 3000:
+                    break
+                v_id = uuid.UUID(r["id"])
+                existing = await session.get(VisitLog, v_id)
+                if not existing:
+                    v_date = _parse_dt(r.get("check_in_time")) or _parse_dt(r.get("visit_date")) or datetime.utcnow()
+                    session.add(VisitLog(
+                        id=v_id,
+                        dsp_id=uuid.UUID(r["dsp_id"]) if r.get("dsp_id") else None,
+                        outlet_id=uuid.UUID(r["outlet_id"]),
+                        visit_date=v_date,
+                        visit_type="SCHEDULED",
+                        outcome=r.get("outcome", "COMPLETED"),
+                        notes=r.get("notes"),
+                        duration_minutes=20
+                    ))
+                    count += 1
+        await session.flush()
+
+    # 10. Transactions (first 5,000 records)
+    txns_path = csv_dir / "transactions.csv"
+    if txns_path.exists():
+        with open(txns_path, "r", encoding="utf-8") as f:
+            count = 0
+            for r in csv.DictReader(f):
+                if count >= 5000:
+                    break
+                t_id = uuid.UUID(r["id"])
+                existing = await session.get(Transaction, t_id)
+                if not existing:
+                    t_date = _parse_dt(r.get("txn_date")) or datetime.utcnow()
+                    session.add(Transaction(
+                        id=t_id,
+                        outlet_id=uuid.UUID(r["outlet_id"]),
+                        txn_type=r.get("txn_type", "QR_PAYMENT").upper(),
+                        amount=float(r.get("amount", 100.0)),
+                        txn_date=t_date,
+                        status=r.get("status", "SUCCESS").upper()
+                    ))
+                    count += 1
+        await session.flush()
+
+    await session.commit()
+    logger.info("Successfully completed full CSV dataset import into database!")
+
 async def init_db():
+    from pathlib import Path
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("Successfully ensured all 35 database tables exist.")
-        await seed_data_if_empty()
+        
+        # Check if CSV directory is available
+        csv_dir = Path(__file__).resolve().parent.parent.parent / "data" / "csv"
+        if not csv_dir.exists():
+            csv_dir = Path("data/csv")
+            
+        async with AsyncSessionLocal() as session:
+            outlet_count = await session.scalar(select(func.count(Outlet.id))) or 0
+            if outlet_count <= 5 and (csv_dir / "outlets.csv").exists():
+                logger.info(f"Database currently has minimal data ({outlet_count} outlets). Loading full CSV dataset...")
+                try:
+                    await seed_from_csv(session, csv_dir)
+                except Exception as csv_err:
+                    logger.error(f"Error loading CSV dataset: {csv_err}. Falling back to default seed.", exc_info=True)
+                    await seed_data_if_empty()
+            elif outlet_count == 0:
+                await seed_data_if_empty()
     except Exception as e:
-        logger.error(f"Error creating database tables: {e}")
+        logger.error(f"Error initializing/seeding database tables: {e}", exc_info=True)
         raise

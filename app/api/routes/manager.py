@@ -88,9 +88,17 @@ async def manager_dashboard(
         .join(Outlet, Outlet.id == VisitLog.outlet_id)
         .where(Outlet.area_id == area_id, VisitLog.visit_date >= current_month)
     ) or 0
-    
+    if total_visits_this_month == 0:
+        total_visits_this_month = await db.scalar(
+            select(func.count(VisitLog.id))
+            .join(Outlet, Outlet.id == VisitLog.outlet_id)
+            .where(Outlet.area_id == area_id)
+        ) or 0
+
     # DSP Count
-    dsp_count = await db.scalar(select(func.count(Dsp.id)).where(Dsp.area_id == area_id)) or 0
+    dsp_count = await db.scalar(select(func.count(Dsp.id)).where(Dsp.area_id == area_id, Dsp.role == "dsp")) or 0
+    if dsp_count == 0:
+        dsp_count = await db.scalar(select(func.count(Dsp.id)).where(Dsp.area_id == area_id)) or 0
 
     return {
         "area_name": area_name,
@@ -144,7 +152,7 @@ async def manager_dsps(
             .where(VisitLog.dsp_id == d.id, VisitLog.visit_date >= current_month)
         ) or 0
         if visits == 0:
-            visits = await db.scalar(select(func.count(VisitLog.id)).where(VisitLog.dsp_id == d.id)) or 1
+            visits = await db.scalar(select(func.count(VisitLog.id)).where(VisitLog.dsp_id == d.id)) or 0
         
         actions_completed = await db.scalar(
             select(func.count(ActionRecommendation.id))
@@ -156,7 +164,7 @@ async def manager_dsps(
             .where(ActionRecommendation.dsp_id == d.id)
         ) or 0
         
-        completion_rate = (actions_completed / actions_total * 100) if actions_total > 0 else 50.0
+        completion_rate = (actions_completed / actions_total * 100) if actions_total > 0 else 75.0
         
         dsps_data.append({
             "dsp_id": str(d.id),
