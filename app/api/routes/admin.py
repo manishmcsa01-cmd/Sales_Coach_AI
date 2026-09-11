@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, distinct
@@ -13,6 +14,7 @@ from app.models.score import OutletScore
 from app.models.user import UserAccount
 from app.models.visit_log import VisitLog
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/dashboard")
@@ -102,10 +104,21 @@ async def admin_health(
     ]
     
     # get latest score
-    latest_score = await db.execute(
-        select(OutletScore).order_by(OutletScore.score_date.desc()).limit(1)
-    )
-    score_obj = latest_score.scalars().first()
+    scoring_model_version = "v1.0.0"
+    last_score_date = "N/A"
+    
+    try:
+        latest_score = await db.execute(
+            select(OutletScore).order_by(OutletScore.score_date.desc()).limit(1)
+        )
+        score_obj = latest_score.scalars().first()
+        if score_obj:
+            if getattr(score_obj, "model_version", None):
+                scoring_model_version = str(score_obj.model_version)
+            if getattr(score_obj, "score_date", None):
+                last_score_date = score_obj.score_date.isoformat() if hasattr(score_obj.score_date, "isoformat") else str(score_obj.score_date)
+    except Exception as e:
+        logger.warning(f"Error retrieving latest score for health check: {e}")
     
     return {
         "tables": tables,
