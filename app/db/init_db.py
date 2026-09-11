@@ -1,7 +1,9 @@
 import logging
 import uuid
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from sqlalchemy import select, func, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import engine, AsyncSessionLocal
 from app.models import (
     Base, Area, Merchant, Dsp, Outlet, OutletScore, Transaction, VisitLog,
@@ -595,7 +597,6 @@ async def seed_from_csv(session: AsyncSession, csv_dir: Path):
     logger.info("Successfully completed full CSV dataset import into database!")
 
 async def init_db():
-    from pathlib import Path
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -619,4 +620,3 @@ async def init_db():
                 await seed_data_if_empty()
     except Exception as e:
         logger.error(f"Error initializing/seeding database tables: {e}", exc_info=True)
-        raise
