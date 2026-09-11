@@ -42,6 +42,7 @@ xray_mock = types.ModuleType("aws_xray_sdk")
 xray_mock.__path__ = []
 xray_core = types.ModuleType("aws_xray_sdk.core")
 xray_core.xray_recorder = MagicMock()
+xray_core.patch_all = MagicMock()
 
 redis_mock = types.ModuleType("redis")
 redis_mock.__path__ = []

@@ -1,6 +1,6 @@
 # Sales Coach AI — GCash Field Sales Intelligence Platform
 
-An AI-powered coaching assistant for GCash's field sales team — Distributor Sales Personnel (DSPs), Sales Managers, and Admins. Built on **AWS** with **LangGraph** multi-agent orchestration and **Amazon Bedrock** (Claude 3 Sonnet).
+An AI-powered coaching assistant for GCash's field sales team — Distributor Sales Personnel (DSPs), Sales Managers, and Admins. Built on **AWS** with **LangGraph** multi-agent orchestration and **Amazon Bedrock** (Claude 3.5 Sonnet).
 
 ---
 
@@ -15,7 +15,7 @@ An AI-powered coaching assistant for GCash's field sales team — Distributor Sa
 │  Master → Intent → Profile/Ranking/Brief/Nudge → Response   │
 ├──────────┬──────────┬──────────┬──────────┬─────────────────┤
 │ Bedrock  │ Cognito  │   RDS    │   S3     │  CloudWatch     │
-│ Claude 3 │  Auth    │PostgreSQL│ Storage  │  + X-Ray        │
+│Claude 3.5│  Auth    │PostgreSQL│ Storage  │  + X-Ray        │
 │Guardrails│  JWKS    │ asyncpg  │          │  Observability  │
 └──────────┴──────────┴──────────┴──────────┴─────────────────┘
 ```
@@ -24,7 +24,7 @@ An AI-powered coaching assistant for GCash's field sales team — Distributor Sa
 
 | Service | Purpose |
 |---|---|
-| **Amazon Bedrock** | LLM (Claude 3 Sonnet) + Guardrails for AI coaching |
+| **Amazon Bedrock** | LLM (Claude 3.5 Sonnet) + Guardrails for AI coaching |
 | **Amazon Cognito** | User authentication & JWKS token verification |
 | **Amazon RDS** | PostgreSQL database for all structured data |
 | **Amazon S3** | File storage (transcripts, models, exports) |

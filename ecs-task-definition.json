@@ -20,7 +20,7 @@
       "environment": [
         { "name": "APP_ENV", "value": "production" },
         { "name": "AWS_REGION", "value": "ap-southeast-1" },
-        { "name": "BEDROCK_MODEL_ID", "value": "anthropic.claude-3-sonnet-20240229-v1:0" },
+        { "name": "BEDROCK_MODEL_ID", "value": "anthropic.claude-3-5-sonnet-20240620-v1:0" },
         { "name": "BEDROCK_GUARDRAIL_VERSION", "value": "DRAFT" },
         { "name": "DYNAMODB_TABLE_PREFIX", "value": "salescoach" },
         { "name": "CLOUDWATCH_LOG_GROUP", "value": "/ecs/salescoach-ai" }

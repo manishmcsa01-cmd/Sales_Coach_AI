@@ -44,7 +44,7 @@ async def ask_question(
             db=db
         )
 
-        # Step 2: Invoke Bedrock Foundation Model (Claude 3.5 Sonnet / Nova) directly with question + database grounding
+        # Step 2: Invoke Bedrock Foundation Model (Claude 3.5 Sonnet) directly with question + database grounding
         try:
             from app.aws.bedrock_client import bedrock_client
             system_prompt = (

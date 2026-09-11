@@ -23,15 +23,17 @@ class BedrockClient:
     """Bedrock runtime client protected with FinOps cost caps ($100/mo), rate limits, and fallback guardrails."""
 
     FALLBACK_MODELS = [
+        "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "anthropic.claude-3-sonnet-20240229-v1:0",
+        "apac.anthropic.claude-3-sonnet-20240229-v1:0",
+        "apac.anthropic.claude-3-haiku-20240307-v1:0",
         "amazon.nova-lite-v1:0",
         "amazon.nova-micro-v1:0",
         "amazon.nova-pro-v1:0",
         "apac.amazon.nova-lite-v1:0",
         "apac.amazon.nova-micro-v1:0",
         "apac.amazon.nova-pro-v1:0",
-        "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
-        "apac.anthropic.claude-3-sonnet-20240229-v1:0",
-        "apac.anthropic.claude-3-haiku-20240307-v1:0",
     ]
 
     def __init__(self):
